@@ -1,0 +1,5 @@
+{
+  "thumbnail_text": "आर्या टेस्ट वीडियो SECRETS",
+  "image_path": null,
+  "error": "402: {'errors': ['You lack sufficient credits to make this request.  Please purchase more credits at https://platform.stability.ai/account/credits and try again.'], 'id': 'cbe01d6d07964af6a245d77e1f276a73', 'name': 'payment_required'}"
+}

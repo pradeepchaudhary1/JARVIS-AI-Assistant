@@ -1,0 +1,33 @@
+# ============================================
+# JARVIS .env File
+# Save as: C:\Users\hp\Desktop\JARVIS-AI-Assistant\.env
+# ============================================
+
+# Groq AI (JARVIS brain - fastest)
+# Get from: https://console.groq.com
+GROQ_API_KEY=
+
+# Google APIs
+# Get from: https://console.developers.google.com
+GOOGLE_API_KEY=your_google_api_key_here
+YOUTUBE_API_KEY=your_youtube_api_key_here
+
+# Serper (web search)
+# Get from: https://serper.dev
+SERPER_API_KEY=your_serper_api_key_here
+
+# Zapier Webhook (social media posting)
+# Create at: zapier.com -> Webhooks -> Catch Hook
+ZAPIER_WEBHOOK_URL=https://hooks.zapier.com/hooks/catch/YOUR_ID/YOUR_TOKEN/
+
+# LiveKit (voice - optional)
+LIVEKIT_URL=wss://your-project.livekit.cloud
+LIVEKIT_API_KEY=your_livekit_key
+LIVEKIT_API_SECRET=your_livekit_secret
+
+# OpenWeather
+# Get from: https://openweathermap.org/api
+WEATHER_API_KEY=your_weather_key_here
+
+# Redis (JARVIS memory — optional, falls back to jarvis_memory.json)
+REDIS_URL=redis://127.0.0.1:6379/0

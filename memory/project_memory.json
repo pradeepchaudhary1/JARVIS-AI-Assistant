@@ -1,0 +1,28 @@
+{
+  "projects": [
+    {
+      "name": "JARVIS AI Assistant",
+      "status": "active_development",
+      "description": "Personal AI assistant with voice, PC control, web UI",
+      "started": "2026-06-20T23:31:00"
+    },
+    {
+      "name": "Lumix Branding",
+      "status": "active",
+      "description": "Luxury business card brand on Instagram",
+      "started": "2026-06-20T23:31:00"
+    },
+    {
+      "name": "DarkFacts Hindi",
+      "status": "active",
+      "description": "Dark facts Instagram content brand",
+      "started": "2026-06-20T23:31:00"
+    },
+    {
+      "name": "add karo remix website",
+      "status": "active",
+      "description": "",
+      "started": "2026-06-21T14:36:44.096849"
+    }
+  ]
+}

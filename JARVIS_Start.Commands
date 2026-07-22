@@ -1,0 +1,4 @@
+cd desktop
+cd JARVIS-AI-Assistant
+.venv\Scripts\activate
+python agent.py console

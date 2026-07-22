@@ -1,0 +1,27 @@
+# ═══════════════════════════════════════
+# JARVIS Multi-Agent System Requirements
+# ═══════════════════════════════════════
+
+# Core
+python-dotenv
+requests
+
+# AI
+google-generativeai
+crewai
+crewai-tools
+
+# YouTube Upload
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+
+# Image Processing
+Pillow
+
+# Scheduling
+apscheduler
+
+# Already installed (Jarvis core)
+# livekit-agents
+# livekit-plugins-google

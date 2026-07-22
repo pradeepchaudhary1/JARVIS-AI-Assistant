@@ -1,0 +1,5 @@
+{
+  "thumbnail_text": "LUXURY LIFESTYLE SECRETS",
+  "image_path": null,
+  "error": "402: {'errors': ['You lack sufficient credits to make this request.  Please purchase more credits at https://platform.stability.ai/account/credits and try again.'], 'id': '37f18a75390a33ca7c6ee3dcd6cac09c', 'name': 'payment_required'}"
+}

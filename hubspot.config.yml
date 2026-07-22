@@ -1,0 +1,14 @@
+defaultPortal: pradeep-ai-automationcom
+portals:
+  - name: pradeep-ai-automationcom
+    env: prod
+    authType: personalaccesskey
+    accountType: STANDARD
+    personalAccessKey: >-
+      YOUR_HUBSPOT_TOKEN
+    auth:
+      tokenInfo:
+        accessToken: >-
+          YOUR_HUBSPOT_TOKEN
+        expiresAt: '2026-05-23T20:32:03.063Z'
+    portalId: 246117838

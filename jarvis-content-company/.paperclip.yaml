@@ -1,0 +1,59 @@
+schema: paperclip/v1
+
+agents:
+  ceo:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "youtube_pipeline"
+    inputs:
+      env:
+        GOOGLE_API_KEY:
+          kind: secret
+          requirement: required
+
+  research-analyst:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "research"
+    inputs:
+      env:
+        SERPER_API_KEY:
+          kind: secret
+          requirement: required
+
+  script-writer:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "script"
+
+  seo-manager:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "seo"
+
+  social-media-manager:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "social_post"
+    inputs:
+      env:
+        ZAPIER_WEBHOOK_URL:
+          kind: secret
+          requirement: required
+
+  client-handler:
+    adapter:
+      type: jarvis_local
+      config:
+        bridgeUrl: "http://localhost:8765"
+        taskType: "upwork_proposal"

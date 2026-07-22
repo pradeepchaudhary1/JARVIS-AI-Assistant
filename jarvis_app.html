@@ -1,0 +1,2780 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>JARVIS — Pradeep Content Empire</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --bg-void: #05080c;
+      --bg-panel: #0a0f16;
+      --bg-panel-2: #0d1420;
+      --line: #16222f;
+      --line-bright: #1f3344;
+      --cyan: #00e5ff;
+      --cyan-dim: #0891a8;
+      --amber: #ffb020;
+      --red: #ff3b5c;
+      --green: #2bffa3;
+      --text-hi: #dfeaf2;
+      --text-mid: #7e93a3;
+      --text-low: #475563;
+      --font-display: 'Orbitron', sans-serif;
+      --font-mono: 'Share Tech Mono', monospace;
+      --font-ui: 'Rajdhani', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      background: var(--bg-void);
+      color: var(--text-hi);
+      font-family: var(--font-ui);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ---------- Ambient background ---------- */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background-image:
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.18;
+      mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, black 30%, transparent 75%);
+    }
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(700px 500px at 18% 8%, rgba(0, 229, 255, 0.07), transparent 60%),
+        radial-gradient(900px 600px at 85% 90%, rgba(255, 59, 92, 0.05), transparent 60%);
+    }
+
+    .scanline {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      pointer-events: none;
+      background: linear-gradient(rgba(0, 229, 255, 0) 0%, rgba(0, 229, 255, 0.025) 50%, rgba(0, 229, 255, 0) 100%);
+      background-size: 100% 4px;
+      opacity: 0.5;
+      animation: scan 9s linear infinite;
+    }
+
+    @keyframes scan {
+      from {
+        background-position: 0 0;
+      }
+
+      to {
+        background-position: 0 600px;
+      }
+    }
+
+    /* ---------- Shell layout ---------- */
+    .shell {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: 76px 300px 1fr 340px;
+      grid-template-rows: 56px 1fr 26px;
+      height: 100vh;
+      gap: 1px;
+    }
+
+    /* ---------- Top bar ---------- */
+    .topbar {
+      grid-column: 1/-1;
+      grid-row: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: var(--bg-panel);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .brand-mark {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      background: conic-gradient(from 180deg, var(--cyan), #0a3a45, var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px rgba(0, 229, 255, 0.5);
+      position: relative;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 5px;
+      border-radius: 4px;
+      background: var(--bg-void);
+    }
+
+    .brand-mark span {
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-display);
+      font-size: 11px;
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .brand-text {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: var(--text-hi);
+    }
+
+    .brand-text b {
+      color: var(--cyan);
+      font-weight: 900;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-low);
+      letter-spacing: 1px;
+      margin-left: 10px;
+      padding-left: 10px;
+      border-left: 1px solid var(--line-bright);
+    }
+
+    .top-status {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .status-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--text-mid);
+      padding: 5px 12px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: var(--bg-panel-2);
+    }
+
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .dot.amber {
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+    }
+
+    .clock {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--cyan);
+      letter-spacing: 1px;
+      min-width: 150px;
+      text-align: right;
+    }
+
+    /* ---------- Left icon rail ---------- */
+    .rail {
+      grid-column: 1;
+      grid-row: 2/4;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 18px 0;
+      gap: 6px;
+    }
+
+    .rail-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-mid);
+      cursor: pointer;
+      position: relative;
+      border: 1px solid transparent;
+      transition: all .15s ease;
+    }
+
+    .rail-btn svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .rail-btn:hover {
+      color: var(--cyan);
+      background: rgba(0, 229, 255, 0.06);
+      border-color: var(--line-bright);
+    }
+
+    .rail-btn.active {
+      color: var(--cyan);
+      background: rgba(0, 229, 255, 0.1);
+      border-color: var(--cyan-dim);
+    }
+
+    .rail-btn.active::before {
+      content: "";
+      position: absolute;
+      left: -19px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 22px;
+      background: var(--cyan);
+      border-radius: 2px;
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .rail-label {
+      font-family: var(--font-mono);
+      font-size: 8px;
+      color: var(--text-low);
+      margin-top: 1px;
+      letter-spacing: 0.5px;
+    }
+
+    .rail-spacer {
+      flex: 1;
+    }
+
+    .rail-avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: linear-gradient(135deg, #1a2530, #0d141c);
+      border: 1px solid var(--line-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 12px;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    /* ---------- Sidebar (modules) ---------- */
+    .sidebar {
+      grid-column: 2;
+      grid-row: 2/4;
+      background: var(--bg-panel);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-head {
+      padding: 16px 18px 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-low);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sidebar-search {
+      margin: 0 14px 14px;
+      position: relative;
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      background: var(--bg-panel-2);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 9px 12px 9px 32px;
+      color: var(--text-hi);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .sidebar-search input:focus {
+      border-color: var(--cyan-dim);
+    }
+
+    .sidebar-search svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      color: var(--text-low);
+    }
+
+    .module-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 10px 10px;
+    }
+
+    .module-group-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 2px;
+      color: var(--text-low);
+      padding: 12px 8px 6px;
+    }
+
+    .module-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+      transition: all .15s ease;
+    }
+
+    .module-item:hover {
+      background: var(--bg-panel-2);
+      border-color: var(--line);
+    }
+
+    .module-item.on {
+      background: rgba(0, 229, 255, 0.05);
+      border-color: var(--line-bright);
+    }
+
+    .mod-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .module-item.on .mod-icon {
+      color: var(--cyan);
+      border-color: var(--cyan-dim);
+    }
+
+    .module-item:not(.on) .mod-icon {
+      color: var(--text-low);
+    }
+
+    .mod-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .mod-text {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .mod-name {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-hi);
+    }
+
+    .mod-desc {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mod-state {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .module-item.on .mod-state {
+      background: var(--green);
+      box-shadow: 0 0 6px var(--green);
+    }
+
+    .module-item:not(.on) .mod-state {
+      background: var(--line-bright);
+    }
+
+    .module-item.stub .mod-name {
+      color: var(--text-mid);
+    }
+
+    .module-item.stub .mod-desc::after {
+      content: " · soon";
+      color: var(--amber);
+    }
+
+    .sidebar-foot {
+      border-top: 1px solid var(--line);
+      padding: 14px 18px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-low);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .sidebar-foot b {
+      color: var(--green);
+    }
+
+    /* ---------- Center column ---------- */
+    .center {
+      grid-column: 3;
+      grid-row: 2;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg-void);
+      overflow: hidden;
+    }
+
+    .visual-hub {
+      margin: 16px 16px 0;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-panel);
+      padding: 18px 20px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .visual-hub::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(420px 200px at 80% -20%, rgba(0, 229, 255, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .vh-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      position: relative;
+    }
+
+    .vh-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--cyan);
+    }
+
+    .vh-tag {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-low);
+      border: 1px solid var(--line-bright);
+      padding: 3px 9px;
+      border-radius: 20px;
+    }
+
+    .radar-row {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      position: relative;
+    }
+
+    .radar-wrap {
+      position: relative;
+      width: 128px;
+      height: 128px;
+      flex-shrink: 0;
+    }
+
+    .radar-wrap svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .radar-sweep {
+      transform-origin: 64px 64px;
+      animation: spin 4s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .radar-core {
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .vh-stats {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .vh-stat {
+      background: var(--bg-panel-2);
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 10px 12px;
+    }
+
+    .vh-stat .num {
+      font-family: var(--font-display);
+      font-size: 18px;
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .vh-stat .lab {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-low);
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+
+    .quick-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+      position: relative;
+      flex-wrap: wrap;
+    }
+
+    .quick-chip {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-mid);
+      border: 1px solid var(--line-bright);
+      padding: 6px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all .15s ease;
+      background: var(--bg-panel-2);
+    }
+
+    .quick-chip:hover {
+      color: var(--cyan);
+      border-color: var(--cyan-dim);
+      background: rgba(0, 229, 255, 0.06);
+    }
+
+    /* ---------- Chat ---------- */
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .msg {
+      display: flex;
+      gap: 11px;
+      max-width: 78%;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .msg-avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-display);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .msg.jarvis .msg-avatar {
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .msg.user .msg-avatar {
+      background: rgba(255, 176, 32, 0.12);
+      border: 1px solid #8a5d0f;
+      color: var(--amber);
+    }
+
+    .msg-bubble {
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .msg.jarvis .msg-bubble {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-top-left-radius: 3px;
+      color: var(--text-hi);
+    }
+
+    .msg.user .msg-bubble {
+      background: rgba(255, 176, 32, 0.08);
+      border: 1px solid rgba(255, 176, 32, 0.25);
+      border-top-right-radius: 3px;
+      color: var(--text-hi);
+    }
+
+    .msg-meta {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-low);
+      margin-top: 5px;
+    }
+
+    .msg.user .msg-meta {
+      text-align: right;
+    }
+
+    .msg-tool {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--cyan-dim);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line);
+    }
+
+    .msg-tool svg {
+      width: 11px;
+      height: 11px;
+    }
+
+    .typing {
+      display: flex;
+      gap: 4px;
+      padding: 4px 0;
+    }
+
+    .typing span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--cyan);
+      animation: tb 1.2s infinite;
+    }
+
+    .typing span:nth-child(2) {
+      animation-delay: .2s;
+    }
+
+    .typing span:nth-child(3) {
+      animation-delay: .4s;
+    }
+
+    @keyframes tb {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+        opacity: .4;
+      }
+
+      30% {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+    }
+
+    /* ---------- Composer ---------- */
+    .composer {
+      padding: 12px 16px 16px;
+      flex-shrink: 0;
+    }
+
+    .composer-inner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-panel);
+      border: 1px solid var(--line-bright);
+      border-radius: 14px;
+      padding: 7px 8px 7px 16px;
+    }
+
+    .composer-inner:focus-within {
+      border-color: var(--cyan-dim);
+      box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.08);
+    }
+
+    .composer-inner input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-hi);
+      font-family: var(--font-ui);
+      font-size: 14.5px;
+    }
+
+    .composer-inner input::placeholder {
+      color: var(--text-low);
+    }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-mid);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all .15s ease;
+      border: 1px solid transparent;
+    }
+
+    .icon-btn:hover {
+      color: var(--cyan);
+      background: rgba(0, 229, 255, 0.08);
+    }
+
+    .icon-btn svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .icon-btn.mic.live {
+      color: var(--red);
+      background: rgba(255, 59, 92, 0.12);
+      border-color: rgba(255, 59, 92, 0.4);
+      animation: micpulse 1.3s infinite;
+    }
+
+    @keyframes micpulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(255, 59, 92, 0.4);
+      }
+
+      50% {
+        box-shadow: 0 0 0 7px rgba(255, 59, 92, 0);
+      }
+    }
+
+    .send-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+      color: #03161a;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 0 14px rgba(0, 229, 255, 0.35);
+    }
+
+    .send-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .composer-hint {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+      margin-top: 8px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    /* ---------- Right panel: logs ---------- */
+    .logs-panel {
+      grid-column: 4;
+      grid-row: 2;
+      background: var(--bg-panel);
+      border-left: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .logs-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logs-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .logs-tab {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--text-low);
+      padding: 5px 11px;
+      border-radius: 7px;
+      cursor: pointer;
+    }
+
+    .logs-tab.active {
+      color: var(--cyan);
+      background: rgba(0, 229, 255, 0.08);
+    }
+
+    .logs-clear {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--text-low);
+      cursor: pointer;
+    }
+
+    .logs-clear:hover {
+      color: var(--red);
+    }
+
+    .logs-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .log-line {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      display: flex;
+      gap: 8px;
+    }
+
+    .log-time {
+      color: var(--text-low);
+      flex-shrink: 0;
+    }
+
+    .log-tag {
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+
+    .log-tag.info {
+      color: var(--cyan-dim);
+    }
+
+    .log-tag.ok {
+      color: var(--green);
+    }
+
+    .log-tag.warn {
+      color: var(--amber);
+    }
+
+    .log-tag.err {
+      color: var(--red);
+    }
+
+    .log-tag.tool {
+      color: #b18aff;
+    }
+
+    .log-text {
+      color: var(--text-mid);
+      word-break: break-word;
+    }
+
+    .log-text b {
+      color: var(--text-hi);
+      font-weight: 400;
+    }
+
+    .meta-box {
+      margin: 0 14px 14px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--bg-panel-2);
+      padding: 11px 13px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-mid);
+      flex-shrink: 0;
+    }
+
+    .meta-box .mb-title {
+      color: var(--text-low);
+      letter-spacing: 1.5px;
+      font-size: 9px;
+      margin-bottom: 8px;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 2px 0;
+    }
+
+    .meta-row b {
+      color: var(--cyan);
+    }
+
+    /* ---------- Bottom status bar ---------- */
+    .statusbar {
+      grid-column: 1/-1;
+      grid-row: 3;
+      background: var(--bg-panel);
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+    }
+
+    .statusbar .seg {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .statusbar .seg span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .micro-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    ::-webkit-scrollbar {
+      width: 7px;
+      height: 7px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--line-bright);
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--cyan-dim);
+    }
+
+    /* ---------- View switching (Part 2) ---------- */
+    .view {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .view.active {
+      display: flex;
+    }
+
+    /* ---------- Media Player view ---------- */
+    .player-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .player-stage {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--bg-panel);
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .player-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(380px 220px at 50% 0%, rgba(0, 229, 255, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    .album-art {
+      width: 148px;
+      height: 148px;
+      border-radius: 16px;
+      position: relative;
+      z-index: 1;
+      background: conic-gradient(from 200deg, #0d1420, #122636, #0d1420, #1a3344, #0d1420);
+      border: 1px solid var(--line-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+    }
+
+    .album-art.spinning {
+      animation: albumspin 8s linear infinite;
+    }
+
+    @keyframes albumspin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .album-art svg {
+      width: 46px;
+      height: 46px;
+      color: var(--cyan);
+      opacity: 0.85;
+    }
+
+    .track-info {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .track-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-hi);
+      letter-spacing: 0.5px;
+    }
+
+    .track-artist {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mid);
+      margin-top: 5px;
+      letter-spacing: 1px;
+    }
+
+    .player-seek {
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .seek-bar {
+      height: 4px;
+      border-radius: 4px;
+      background: var(--line-bright);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .seek-fill {
+      height: 100%;
+      width: 32%;
+      border-radius: 4px;
+      background: linear-gradient(90deg, var(--cyan), var(--cyan-dim));
+      position: relative;
+    }
+
+    .seek-fill::after {
+      content: "";
+      position: absolute;
+      right: -5px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 11px;
+      height: 11px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 8px var(--cyan);
+    }
+
+    .seek-times {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+      margin-top: 7px;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pctrl-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-mid);
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .pctrl-btn:hover {
+      color: var(--cyan);
+    }
+
+    .pctrl-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .pctrl-btn.play {
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+      color: #03161a;
+      box-shadow: 0 0 18px rgba(0, 229, 255, 0.4);
+    }
+
+    .pctrl-btn.play svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .player-meta-row {
+      display: flex;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pm-chip {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+      border: 1px solid var(--line-bright);
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    .queue-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--text-low);
+      padding: 4px 2px;
+    }
+
+    .queue-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .queue-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 13px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--bg-panel);
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+
+    .queue-item:hover {
+      border-color: var(--cyan-dim);
+      background: var(--bg-panel-2);
+    }
+
+    .queue-item.playing {
+      border-color: var(--cyan-dim);
+      background: rgba(0, 229, 255, 0.05);
+    }
+
+    .q-num {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-low);
+      width: 18px;
+      flex-shrink: 0;
+    }
+
+    .queue-item.playing .q-num {
+      color: var(--cyan);
+    }
+
+    .q-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .q-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-hi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .q-artist {
+      font-family: var(--font-mono);
+      font-size: 9.5px;
+      color: var(--text-low);
+      margin-top: 2px;
+    }
+
+    .q-dur {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-low);
+      flex-shrink: 0;
+    }
+
+    .q-wave {
+      display: flex;
+      gap: 2px;
+      align-items: flex-end;
+      height: 14px;
+      flex-shrink: 0;
+    }
+
+    .q-wave span {
+      width: 2px;
+      background: var(--cyan);
+      border-radius: 1px;
+      animation: wv 1s ease-in-out infinite;
+    }
+
+    .q-wave span:nth-child(1) {
+      height: 40%;
+      animation-delay: 0s;
+    }
+
+    .q-wave span:nth-child(2) {
+      height: 90%;
+      animation-delay: .15s;
+    }
+
+    .q-wave span:nth-child(3) {
+      height: 60%;
+      animation-delay: .3s;
+    }
+
+    .q-wave span:nth-child(4) {
+      height: 100%;
+      animation-delay: .45s;
+    }
+
+    @keyframes wv {
+
+      0%,
+      100% {
+        transform: scaleY(0.4);
+      }
+
+      50% {
+        transform: scaleY(1);
+      }
+    }
+
+    /* ---------- Browser view ---------- */
+    .browser-chrome {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+      padding: 14px 16px 16px;
+      gap: 10px;
+    }
+
+    .browser-tabs {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .browser-tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 13px;
+      border-radius: 9px 9px 0 0;
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-bottom: none;
+      font-size: 12px;
+      color: var(--text-mid);
+      cursor: pointer;
+      max-width: 160px;
+    }
+
+    .browser-tab.active {
+      color: var(--text-hi);
+      background: var(--bg-panel-2);
+      border-color: var(--line-bright);
+    }
+
+    .browser-tab span {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .browser-tab .tab-x {
+      color: var(--text-low);
+      margin-left: 4px;
+    }
+
+    .browser-tab .tab-x:hover {
+      color: var(--red);
+    }
+
+    .browser-newtab {
+      width: 26px;
+      height: 26px;
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-low);
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .browser-newtab:hover {
+      color: var(--cyan);
+      border-color: var(--line-bright);
+    }
+
+    .browser-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-panel);
+      border: 1px solid var(--line-bright);
+      border-radius: 10px;
+      padding: 8px 12px;
+    }
+
+    .browser-bar svg {
+      width: 15px;
+      height: 15px;
+      color: var(--text-low);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .browser-bar svg:hover {
+      color: var(--cyan);
+    }
+
+    .browser-url {
+      flex: 1;
+      background: var(--bg-panel-2);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .browser-url .lock {
+      color: var(--green);
+      flex-shrink: 0;
+    }
+
+    .browser-stage {
+      flex: 1;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg-panel);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .browser-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px 300px at 50% 0%, rgba(0, 229, 255, 0.05), transparent 70%);
+    }
+
+    .browser-stage iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: relative;
+      z-index: 1;
+      background: #fff;
+    }
+
+    .browser-placeholder {
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      color: var(--text-low);
+    }
+
+    .browser-placeholder svg {
+      width: 46px;
+      height: 46px;
+      color: var(--cyan-dim);
+      margin-bottom: 14px;
+    }
+
+    .browser-placeholder h3 {
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: var(--text-mid);
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .browser-placeholder p {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-low);
+      max-width: 360px;
+      line-height: 1.6;
+    }
+
+    .browser-quick {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 1;
+      margin-top: 6px;
+    }
+
+    .bq-chip {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-mid);
+      border: 1px solid var(--line-bright);
+      padding: 6px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      background: var(--bg-panel-2);
+    }
+
+    .bq-chip:hover {
+      color: var(--cyan);
+      border-color: var(--cyan-dim);
+    }
+
+    /* ---------- File Manager view ---------- */
+    .files-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .files-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .files-path {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--text-mid);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .files-path b {
+      color: var(--cyan);
+      font-weight: 400;
+    }
+
+    .files-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .fa-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-mid);
+      border: 1px solid var(--line-bright);
+      padding: 7px 13px;
+      border-radius: 9px;
+      cursor: pointer;
+      background: var(--bg-panel);
+      transition: all .15s ease;
+    }
+
+    .fa-btn:hover {
+      color: var(--cyan);
+      border-color: var(--cyan-dim);
+      background: rgba(0, 229, 255, 0.06);
+    }
+
+    .fa-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .fa-btn.danger:hover {
+      color: var(--red);
+      border-color: var(--red);
+      background: rgba(255, 59, 92, 0.08);
+    }
+
+    .files-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .file-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg-panel);
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      text-align: center;
+      transition: all .15s ease;
+      position: relative;
+    }
+
+    .file-card:hover {
+      border-color: var(--cyan-dim);
+      background: var(--bg-panel-2);
+    }
+
+    .file-card.selected {
+      border-color: var(--cyan);
+      background: rgba(0, 229, 255, 0.06);
+    }
+
+    .file-card .f-icon {
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--cyan-dim);
+    }
+
+    .file-card.folder .f-icon {
+      color: var(--amber);
+    }
+
+    .file-card .f-icon svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .file-card .f-name {
+      font-size: 11.5px;
+      color: var(--text-hi);
+      word-break: break-word;
+      line-height: 1.3;
+      max-width: 100%;
+    }
+
+    .file-card .f-meta {
+      font-family: var(--font-mono);
+      font-size: 8.5px;
+      color: var(--text-low);
+    }
+
+    .file-card .f-check {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      border: 1px solid var(--line-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+    }
+
+    .file-card.selected .f-check {
+      opacity: 1;
+      background: var(--cyan);
+      border-color: var(--cyan);
+    }
+
+    .file-card.selected .f-check svg {
+      width: 10px;
+      height: 10px;
+      color: #03161a;
+    }
+
+    .files-log {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-low);
+      border-top: 1px dashed var(--line);
+      padding-top: 12px;
+    }
+
+    .files-log b {
+      color: var(--green);
+      font-weight: 400;
+    }
+
+    @media (max-width:1100px) {
+      .shell {
+        grid-template-columns: 64px 0px 1fr 0px;
+      }
+
+      .sidebar,
+      .logs-panel {
+        display: none;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+  <div class="scanline"></div>
+
+  <div class="shell">
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-mark"><span>J</span></div>
+        <div class="brand-text">JAR<b>VIS</b></div>
+        <div class="brand-sub">PRADEEP CONTENT EMPIRE</div>
+      </div>
+      <div class="top-status">
+        <div class="status-pill">
+          <div class="dot" id="groqDot"></div> GROQ · LLAMA-3.1-8B
+        </div>
+        <div class="status-pill">
+          <div class="dot amber" id="bridgeDot"></div> BRIDGE · 8765
+        </div>
+        <div class="status-pill">
+          <div class="dot" id="micDot"></div> MIC · READY
+        </div>
+        <div class="clock" id="liveClock">--:--:-- IST</div>
+      </div>
+    </div>
+
+    <!-- LEFT ICON RAIL -->
+    <div class="rail">
+      <div class="rail-btn active" title="Chat" data-view="view-chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path
+            d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="World Monitor" data-view="view-world">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="Media Player" data-view="view-player">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9" />
+          <circle cx="12" cy="12" r="2.4" fill="currentColor" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="Browser" data-view="view-browser">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="9" />
+          <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="Files" data-view="view-files">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="PC Control" data-view="view-chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="4" width="18" height="13" rx="2" />
+          <path d="M8 21h8M12 17v4" />
+        </svg>
+      </div>
+      <div class="rail-btn" title="Automation" data-view="view-chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />
+        </svg>
+      </div>
+      <div class="rail-spacer"></div>
+      <div class="rail-btn" title="Settings" data-view="view-chat">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="12" cy="12" r="3" />
+          <path
+            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+        </svg>
+      </div>
+      <div class="rail-avatar">P</div>
+    </div>
+
+    <!-- SIDEBAR: MODULES -->
+    <div class="sidebar">
+      <div class="sidebar-head">
+        <span>MODULES</span>
+        <span style="color:var(--green)">6 ONLINE</span>
+      </div>
+      <div class="sidebar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input type="text" placeholder="Search modules...">
+      </div>
+
+      <div class="module-list">
+        <div class="module-group-label">CORE</div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path
+                d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">AI Chat</div>
+            <div class="mod-desc">Groq llama-3.1-8b-instant</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">Voice I/O</div>
+            <div class="mod-desc">hi-IN listen · TTS David</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="4" width="18" height="13" rx="2" />
+              <path d="M8 21h8M12 17v4" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">PC Control</div>
+            <div class="mod-desc">apps · lock · notepad</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-group-label">CONTENT EMPIRE</div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" />
+              <rect x="3" y="14" width="7" height="7" rx="1.5" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">Lumix Branding</div>
+            <div class="mod-desc">@lumixbranding auto-post</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M12 2 2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">DarkFacts Pipeline</div>
+            <div class="mod-desc">script · seo · calendar</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item on">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">Paperclip Bridge</div>
+            <div class="mod-desc">YouTube pipeline · :8765</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-group-label">EXPANSION</div>
+
+        <div class="module-item stub" data-view="view-world">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">World Monitor</div>
+            <div class="mod-desc">news · headlines feed</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item stub" data-view="view-player">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <circle cx="12" cy="12" r="9" />
+              <circle cx="12" cy="12" r="2.4" fill="currentColor" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">Media Player</div>
+            <div class="mod-desc">music · video control</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item stub">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">Face Recognition</div>
+            <div class="mod-desc">owner detection</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+
+        <div class="module-item stub" data-view="view-files">
+          <div class="mod-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+            </svg></div>
+          <div class="mod-text">
+            <div class="mod-name">File Manager</div>
+            <div class="mod-desc">create · delete · search</div>
+          </div>
+          <div class="mod-state"></div>
+        </div>
+      </div>
+
+      <div class="sidebar-foot">
+        <span>v2.1 · C:/JARVIS-AI</span>
+        <span><b>●</b> 6/10 ready</span>
+      </div>
+    </div>
+
+    <!-- CENTER -->
+    <div class="center">
+
+      <div class="view view-chat active" id="view-chat">
+
+        <div class="visual-hub">
+          <div class="vh-top">
+            <div class="vh-title">⬡ SYSTEM OVERVIEW</div>
+            <div class="vh-tag">KOTA, RAJASTHAN · IST</div>
+          </div>
+          <div class="radar-row">
+            <div class="radar-wrap">
+              <svg viewBox="0 0 128 128">
+                <circle cx="64" cy="64" r="58" fill="none" stroke="#16222f" stroke-width="1" />
+                <circle cx="64" cy="64" r="42" fill="none" stroke="#16222f" stroke-width="1" />
+                <circle cx="64" cy="64" r="26" fill="none" stroke="#16222f" stroke-width="1" />
+                <line x1="64" y1="6" x2="64" y2="122" stroke="#16222f" stroke-width="1" />
+                <line x1="6" y1="64" x2="122" y2="64" stroke="#16222f" stroke-width="1" />
+                <g class="radar-sweep">
+                  <path d="M64 64 L64 6 A58 58 0 0 1 105 23 Z" fill="url(#sweepGrad)" />
+                </g>
+                <defs>
+                  <linearGradient id="sweepGrad" x1="64" y1="6" x2="105" y2="23" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#00e5ff" stop-opacity="0.55" />
+                    <stop offset="1" stop-color="#00e5ff" stop-opacity="0" />
+                  </linearGradient>
+                </defs>
+                <circle class="radar-core" cx="64" cy="64" r="5" fill="#00e5ff" />
+              </svg>
+            </div>
+            <div class="vh-stats">
+              <div class="vh-stat">
+                <div class="num">0.8s</div>
+                <div class="lab">AVG RESPONSE</div>
+              </div>
+              <div class="vh-stat">
+                <div class="num">2</div>
+                <div class="lab">BRANDS LIVE</div>
+              </div>
+              <div class="vh-stat">
+                <div class="num" id="upStat">00:00</div>
+                <div class="lab">UPTIME</div>
+              </div>
+              <div class="vh-stat">
+                <div class="num">6</div>
+                <div class="lab">MODULES ON</div>
+              </div>
+              <div class="vh-stat">
+                <div class="num">3</div>
+                <div class="lab">POSTS TODAY</div>
+              </div>
+              <div class="vh-stat">
+                <div class="num">Ready</div>
+                <div class="lab">WORLDMONITOR</div>
+              </div>
+            </div>
+          </div>
+          <div class="quick-row">
+            <div class="quick-chip" data-cmd="Lumix card post karo">📌 Post Lumix Card</div>
+            <div class="quick-chip" data-cmd="Aaj ka dark fact script likho">🌑 DarkFacts Script</div>
+            <div class="quick-chip" data-cmd="System status batao">⚙ System Status</div>
+            <div class="quick-chip" data-cmd="YouTube video banao AI tools pe">🎬 YouTube Pipeline</div>
+            <div class="quick-chip" data-cmd="Aaj duniya mein kya hua">🌐 World Monitor</div>
+          </div>
+        </div>
+
+        <div class="chat-area" id="chatArea">
+
+          <div class="msg jarvis">
+            <div class="msg-avatar">J</div>
+            <div>
+              <div class="msg-bubble">Good morning sir! JARVIS ready hai. Kya karna hai aaj? 🟢</div>
+              <div class="msg-meta">JARVIS · just now</div>
+            </div>
+          </div>
+
+          <div class="msg user">
+            <div class="msg-avatar">P</div>
+            <div>
+              <div class="msg-bubble">Jarvis, system status batao</div>
+              <div class="msg-meta">Pradeep · just now</div>
+            </div>
+          </div>
+
+          <div class="msg jarvis">
+            <div class="msg-avatar">J</div>
+            <div>
+              <div class="msg-bubble">
+                Sir sab theek hai! Paperclip Bridge ON, Lumix ON, PC Control ON.
+                <div class="msg-tool">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z" />
+                  </svg>
+                  Executed: system_status_check (0.3s)
+                </div>
+              </div>
+              <div class="msg-meta">JARVIS · just now</div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="composer">
+          <div class="composer-inner">
+            <div class="icon-btn" title="Attach">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path
+                  d="M21.4 11.1 12.3 20.2a5.5 5.5 0 0 1-7.8-7.8l9.1-9.1a3.7 3.7 0 0 1 5.2 5.2L9.7 17.6a1.8 1.8 0 0 1-2.6-2.6l8.1-8.1" />
+              </svg>
+            </div>
+            <input id="userInput" type="text" placeholder="Type a command or say 'Jarvis'...">
+            <div class="icon-btn mic" id="micBtn" title="Voice input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" />
+              </svg>
+            </div>
+            <div class="send-btn" id="sendBtn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="m22 2-7 20-4-9-9-4 20-7z" />
+              </svg>
+            </div>
+          </div>
+          <div class="composer-hint">JARVIS connects to agent.py via local bridge · :8765 · Hinglish supported</div>
+        </div>
+
+      </div>
+      <!-- /view-chat -->
+
+      <!-- VIEW: MEDIA PLAYER (Part 2) -->
+      <div class="view view-player" id="view-player">
+        <div class="player-wrap">
+          <div class="player-stage">
+            <div class="album-art spinning" id="albumArt">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M9 18V5l12-2v13" />
+                <circle cx="6" cy="18" r="3" />
+                <circle cx="18" cy="16" r="3" />
+              </svg>
+            </div>
+            <div class="track-info">
+              <div class="track-title" id="trackTitle">Tum Hi Ho</div>
+              <div class="track-artist" id="trackArtist">Arijit Singh · Aashiqui 2</div>
+            </div>
+            <div class="player-seek">
+              <div class="seek-bar">
+                <div class="seek-fill" id="seekFill"></div>
+              </div>
+              <div class="seek-times"><span id="seekNow">1:23</span><span id="seekDur">4:22</span></div>
+            </div>
+            <div class="player-controls">
+              <div class="pctrl-btn" title="Shuffle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8">
+                  <path
+                    d="m18 4 3 3-3 3M2 7h3a4 4 0 0 1 3.4 2M2 17h3a4 4 0 0 0 3.4-2M18 17l3 3-3 3M21 20h-3a4 4 0 0 1-3.4-2l-6.2-10A4 4 0 0 0 5 6H2" />
+                </svg></div>
+              <div class="pctrl-btn" title="Previous"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M6 6h2v12H6zM10 12l9-6v12z" />
+                </svg></div>
+              <div class="pctrl-btn play" id="playPauseBtn" title="Play/Pause">
+                <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+              </div>
+              <div class="pctrl-btn" title="Next"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M16 6h2v12h-2zM5 18l9-6-9-6z" />
+                </svg></div>
+              <div class="pctrl-btn" title="Repeat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="1.8">
+                  <path d="m17 2 4 4-4 4M3 11V9a4 4 0 0 1 4-4h14M7 22l-4-4 4-4M21 13v2a4 4 0 0 1-4 4H3" />
+                </svg></div>
+            </div>
+            <div class="player-meta-row">
+              <div class="pm-chip">🔊 VOL 80%</div>
+              <div class="pm-chip">▶ JARVIS Voice Queue</div>
+              <div class="pm-chip">🎧 8 tracks</div>
+            </div>
+          </div>
+
+          <div class="queue-label">UP NEXT — VOICE QUEUE</div>
+          <div class="queue-list" id="queueList">
+            <div class="queue-item playing">
+              <span class="q-num">01</span>
+              <div class="q-info">
+                <div class="q-title">Tum Hi Ho</div>
+                <div class="q-artist">Arijit Singh · Aashiqui 2</div>
+              </div>
+              <div class="q-wave"><span></span><span></span><span></span><span></span></div>
+              <span class="q-dur">4:22</span>
+            </div>
+            <div class="queue-item">
+              <span class="q-num">02</span>
+              <div class="q-info">
+                <div class="q-title">Phir Le Aya Dil</div>
+                <div class="q-artist">Arijit Singh · Barfi!</div>
+              </div>
+              <span class="q-dur">5:02</span>
+            </div>
+            <div class="queue-item">
+              <span class="q-num">03</span>
+              <div class="q-info">
+                <div class="q-title">Aye Zindagi</div>
+                <div class="q-artist">Arijit Singh</div>
+              </div>
+              <span class="q-dur">3:48</span>
+            </div>
+            <div class="queue-item">
+              <span class="q-num">04</span>
+              <div class="q-info">
+                <div class="q-title">Teesri Duniya</div>
+                <div class="q-artist">Amjad Sabri</div>
+              </div>
+              <span class="q-dur">6:14</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /view-player -->
+
+      <!-- VIEW: BROWSER (Part 2) -->
+      <div class="view view-browser" id="view-browser">
+        <div class="browser-chrome">
+          <div class="browser-tabs">
+            <div class="browser-tab active"><span>New Tab</span><span class="tab-x">✕</span></div>
+            <div class="browser-newtab" title="New tab">+</div>
+          </div>
+          <div class="browser-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m12 19-7-7 7-7" />
+            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="m5 12 7 7 7-7" />
+            </svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 1 1-3-6.7" />
+              <path d="M21 3v6h-6" />
+            </svg>
+            <div class="browser-url">
+              <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12"
+                height="12">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              </svg>
+              <span id="urlText">jarvis://home</span>
+            </div>
+          </div>
+          <div class="browser-stage" id="browserStage">
+            <div class="browser-placeholder" id="browserPlaceholder">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18" />
+              </svg>
+              <h3>JARVIS BROWSER</h3>
+              <p>Voice se ya niche type karke koi bhi site kholo — "Jarvis YouTube khol do" / "Jarvis Instagram pe le
+                chalo"</p>
+              <div class="browser-quick">
+                <div class="bq-chip" data-url="https://www.youtube.com/channel/UC">YouTube</div>
+                <div class="bq-chip" data-url="https://www.instagram.com/lumixbranding/?hl=en">Instagram</div>
+                <div class="bq-chip" data-url="https://notion.so">Notion</div>
+                <div class="bq-chip" data-url="https://wa.me/919166516942">WhatsApp Web</div>
+                <div class="bq-chip" data-url="https://console.groq.com">Groq Console</div>
+                <div class="bq-chip" data-url="https://www.fiverr.com/users/shortscraftai8/portfolio">Fiverr</div>
+                <div class="bq-chip" data-url="https://lumixbranding.framer.website">Lumix Website</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /view-browser -->
+
+      <!-- VIEW: FILE MANAGER (Part 2) -->
+      <div class="view view-files" id="view-files">
+        <div class="files-wrap">
+          <div class="files-toolbar">
+            <div class="files-path">📁 <b>JARVIS-AI-Assistant</b> / lumix_cards</div>
+            <div class="files-actions">
+              <div class="fa-btn" id="newFolderBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                  <path d="M12 11v4M10 13h4" />
+                </svg>New Folder</div>
+              <div class="fa-btn" id="newFileBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6M12 11v6M9 14h6" />
+                </svg>New File</div>
+              <div class="fa-btn danger" id="deleteSelBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0-1 14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2L4 6" />
+                </svg>Delete</div>
+            </div>
+          </div>
+
+          <div class="files-grid" id="filesGrid">
+            <div class="file-card folder" data-name="lumix_cards" data-type="folder">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                </svg></div>
+              <div class="f-name">lumix_cards</div>
+              <div class="f-meta">FOLDER · 12 items</div>
+            </div>
+            <div class="file-card folder" data-name="phase1_output" data-type="folder">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                </svg></div>
+              <div class="f-name">phase1_output</div>
+              <div class="f-meta">FOLDER · 4 items</div>
+            </div>
+            <div class="file-card folder" data-name="phase2_output" data-type="folder">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
+                </svg></div>
+              <div class="f-name">phase2_output</div>
+              <div class="f-meta">FOLDER · 2 items</div>
+            </div>
+            <div class="file-card" data-name="agent.py" data-type="file">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6" />
+                </svg></div>
+              <div class="f-name">agent.py</div>
+              <div class="f-meta">8.4 KB</div>
+            </div>
+            <div class="file-card" data-name="jarvis_app.html" data-type="file">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6" />
+                </svg></div>
+              <div class="f-name">jarvis_app.html</div>
+              <div class="f-meta">31 KB</div>
+            </div>
+            <div class="file-card" data-name=".env" data-type="file">
+              <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                  <path d="M20 6 9 17l-5-5" />
+                </svg></div>
+              <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <path d="M14 2v6h6" />
+                </svg></div>
+              <div class="f-name">.env</div>
+              <div class="f-meta">0.6 KB</div>
+            </div>
+          </div>
+
+          <div class="files-log" id="filesLog">Sir, bolo — <b>"Jarvis naya folder banao"</b> ya <b>"is file ko delete
+              karo"</b> jaise commands se main files manage kar sakta hoon.</div>
+        </div>
+      </div>
+      <!-- /view-files -->
+
+      <!-- VIEW: WORLD MONITOR (stub - wired in Part 3) -->
+      <div class="view view-world" id="view-world">
+        <div class="player-wrap">
+          <div class="player-stage" style="align-items:flex-start; text-align:left;">
+            <div class="vh-title" style="margin-bottom:4px;">⬡ WORLD MONITOR</div>
+            <p
+              style="font-family:var(--font-mono); font-size:11px; color:var(--text-low); line-height:1.7; max-width:480px;">
+              Sir, ye module Part 3 mein live news API (Serper/NewsAPI) se connect hoga — headlines, AI/tech updates,
+              aur market summary yahan dikhega.
+              Abhi ke liye yeh stub view hai.
+            </p>
+            <div class="browser-quick" style="margin-top:14px;">
+              <div class="bq-chip">🗞 LLM Ecosystem</div>
+              <div class="bq-chip">📈 Market Watch</div>
+              <div class="bq-chip">🤖 AI Releases</div>
+              <div class="bq-chip">🌏 Khijuri / Karauli / Rajasthan News</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /view-world -->
+
+    </div>
+    <!-- /center -->
+
+    <!-- RIGHT: LOGS -->
+    <div class="logs-panel">
+      <div class="logs-head">
+        <div class="logs-tabs">
+          <div class="logs-tab active">LOGS</div>
+          <div class="logs-tab">TASKS</div>
+        </div>
+        <div class="logs-clear">CLEAR</div>
+      </div>
+
+      <div class="meta-box">
+        <div class="mb-title">SESSION</div>
+        <div class="meta-row"><span>Owner</span><b>Pradeep</b></div>
+        <div class="meta-row"><span>Model</span><b>Groq → Ollama</b></div>
+        <div class="meta-row"><span>Bridge</span><b id="bridgeMeta">checking...</b></div>
+        <div class="meta-row"><span>Tokens used</span><b>1,204</b></div>
+      </div>
+
+      <div class="logs-body" id="logsBody">
+        <div class="log-line"><span class="log-time">15:45:31</span><span class="log-tag info">INFO</span><span
+            class="log-text">Voice route selected: <b>en-IN</b></span></div>
+        <div class="log-line"><span class="log-time">15:45:31</span><span class="log-tag ok">OK</span><span
+            class="log-text">TTS engine initialized — <b>David</b></span></div>
+        <div class="log-line"><span class="log-time">15:45:32</span><span class="log-tag info">INFO</span><span
+            class="log-text">Microphone calibrated, threshold <b>300</b></span></div>
+        <div class="log-line"><span class="log-time">15:45:34</span><span class="log-tag tool">TOOL</span><span
+            class="log-text">Executing <b>handle_command()</b></span></div>
+        <div class="log-line"><span class="log-time">15:45:34</span><span class="log-tag ok">OK</span><span
+            class="log-text">system_status_check completed (0.3s)</span></div>
+        <div class="log-line"><span class="log-time">15:45:40</span><span class="log-tag info">INFO</span><span
+            class="log-text">Bridge health check → <b>:8765/health</b></span></div>
+        <div class="log-line"><span class="log-time">15:45:41</span><span class="log-tag warn">WARN</span><span
+            class="log-text">WorldMonitor module not yet wired</span></div>
+      </div>
+    </div>
+
+    <!-- STATUS BAR -->
+    <div class="statusbar">
+      <div class="seg">
+        <span>
+          <div class="micro-dot"></div> agent.py running
+        </span>
+        <span>
+          <div class="micro-dot"></div> jarvis_paperclip_bridge.py :8765
+        </span>
+      </div>
+      <div class="seg">
+        <span>JARVIS v2.1</span>
+        <span>BUILD · PART 3A / 3</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // live clock
+    function tick() {
+      const d = new Date();
+      const opts = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+      document.getElementById('liveClock').textContent = d.toLocaleTimeString('en-IN', opts) + ' IST';
+    }
+    setInterval(tick, 1000); tick();
+
+    // uptime counter
+    let upSec = 0;
+    setInterval(() => {
+      upSec++;
+      const m = String(Math.floor(upSec / 60)).padStart(2, '0');
+      const s = String(upSec % 60).padStart(2, '0');
+      document.getElementById('upStat').textContent = m + ':' + s;
+    }, 1000);
+
+    // view switching
+    function switchView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const target = document.getElementById(viewId);
+      if (target) target.classList.add('active');
+    }
+
+    // rail nav
+    document.querySelectorAll('.rail-btn[data-view]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.rail-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        switchView(btn.dataset.view);
+      });
+    });
+
+    // sidebar module items that map to a view
+    document.querySelectorAll('.module-item[data-view]').forEach(item => {
+      item.addEventListener('click', () => {
+        const viewId = item.dataset.view;
+        switchView(viewId);
+        document.querySelectorAll('.rail-btn').forEach(b => {
+          b.classList.toggle('active', b.dataset.view === viewId);
+        });
+      });
+    });
+
+    // chat logic (frontend shell — Part 1; backend wiring comes in Part 3)
+    const chatArea = document.getElementById('chatArea');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const micBtn = document.getElementById('micBtn');
+    const logsBody = document.getElementById('logsBody');
+
+    function nowTime() {
+      return new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    }
+
+    function addLog(tag, text) {
+      const line = document.createElement('div');
+      line.className = 'log-line';
+      line.innerHTML = `<span class="log-time">${nowTime()}</span><span class="log-tag ${tag}">${tag.toUpperCase()}</span><span class="log-text">${text}</span>`;
+      logsBody.appendChild(line);
+      logsBody.scrollTop = logsBody.scrollHeight;
+    }
+
+    function addMsg(role, text) {
+      const wrap = document.createElement('div');
+      wrap.className = 'msg ' + role;
+      wrap.innerHTML = `
+      <div class="msg-avatar">${role === 'jarvis' ? 'J' : 'P'}</div>
+      <div>
+        <div class="msg-bubble">${text}</div>
+        <div class="msg-meta">${role === 'jarvis' ? 'JARVIS' : 'Pradeep'} · just now</div>
+      </div>`;
+      chatArea.appendChild(wrap);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+
+    function showTyping() {
+      const t = document.createElement('div');
+      t.className = 'msg jarvis'; t.id = 'typingIndicator';
+      t.innerHTML = `<div class="msg-avatar">J</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+      chatArea.appendChild(t);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    }
+    function hideTyping() {
+      const t = document.getElementById('typingIndicator');
+      if (t) t.remove();
+    }
+
+    const BRIDGE_URL = "http://localhost:8765";
+
+    async function realReply(userText) {
+      showTyping();
+      addLog('info', 'User input → <b>"' + userText + '"</b>');
+      try {
+        const res = await fetch(BRIDGE_URL + "/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: userText })
+        });
+        const data = await res.json();
+        hideTyping();
+        if (data.reply) {
+          addMsg('jarvis', data.reply + (data.tool ? `<div class="msg-tool"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 4 14h6l-1 8 9-12h-6l1-8z"/></svg>Executed: ${data.tool}</div>` : ''));
+          addLog('ok', 'Bridge replied via <b>' + (data.tool || 'ai_chat') + '</b>');
+          speakReply(data.reply);
+        } else {
+          addMsg('jarvis', 'Sir, bridge se reply nahi mila. Status check karo.');
+          addLog('err', 'Empty reply from bridge');
+        }
+      } catch (err) {
+        hideTyping();
+        addMsg('jarvis', 'Sir, bridge se connect nahi ho pa raha. Check karo <b>jarvis_paperclip_bridge.py</b> chal raha hai ya nahi (port 8765).');
+        addLog('err', 'Bridge connection failed: ' + err.message);
+      }
+    }
+
+    // optional: speak JARVIS reply in the browser itself using Web Speech API
+    function speak(text) {
+      // Hindi text detect karo
+      const isHindi = /[\u0900-\u097F]/.test(text);
+
+      if (isHindi) {
+        // Google TTS use karo Hindi ke liye
+        const audio = new Audio(
+          `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=hi&client=tw-ob`
+        );
+        audio.play();
+      } else {
+        // English ke liye browser TTS
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-IN';
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+      }
+    }
+
+    function handleSend() {
+      const val = userInput.value.trim();
+      if (!val) return;
+      addMsg('user', val);
+      userInput.value = '';
+      realReply(val);
+    }
+
+    sendBtn.addEventListener('click', handleSend);
+    userInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') handleSend();
+    });
+
+    document.querySelectorAll('.quick-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        userInput.value = chip.dataset.cmd;
+        handleSend();
+      });
+    });
+
+    // mic - real browser speech recognition (Chrome/Edge support SpeechRecognition)
+    let micLive = false;
+    let recognition = null;
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (SpeechRecognitionAPI) {
+      recognition = new SpeechRecognitionAPI();
+      recognition.lang = 'en-IN';        // hears Hindi spoken with English-letter transcription
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        userInput.value = transcript;
+        handleSend();
+      };
+      recognition.onend = () => {
+        micLive = false;
+        micBtn.classList.remove('live');
+      };
+      recognition.onerror = (e) => {
+        addLog('err', 'Mic error: ' + e.error);
+        micLive = false;
+        micBtn.classList.remove('live');
+      };
+    }
+
+    micBtn.addEventListener('click', () => {
+      if (!SpeechRecognitionAPI) {
+        addLog('err', 'Browser mic recognition not supported. Use Chrome/Edge.');
+        return;
+      }
+      if (micLive) {
+        recognition.stop();
+        micLive = false;
+        micBtn.classList.remove('live');
+        addLog('warn', 'Mic listening stopped');
+      } else {
+        recognition.start();
+        micLive = true;
+        micBtn.classList.add('live');
+        addLog('info', 'Mic listening started (en-IN)');
+      }
+    });
+
+    // ===================== PART 2: MEDIA PLAYER =====================
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const albumArt = document.getElementById('albumArt');
+    let isPlaying = true;
+
+    const ICON_PLAY = '<path d="M8 5v14l11-7z"/>';
+    const ICON_PAUSE = '<path d="M7 5h3v14H7zM14 5h3v14h-3z"/>';
+
+    function setPlayState(playing) {
+      isPlaying = playing;
+      playIcon.innerHTML = playing ? ICON_PAUSE : ICON_PLAY;
+      albumArt.classList.toggle('spinning', playing);
+      addLog(playing ? 'ok' : 'warn', playing ? 'Playback resumed' : 'Playback paused');
+    }
+    playPauseBtn.addEventListener('click', () => setPlayState(!isPlaying));
+
+    document.querySelectorAll('.queue-item').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelectorAll('.queue-item').forEach(q => {
+          q.classList.remove('playing');
+          const wave = q.querySelector('.q-wave');
+          if (wave) wave.remove();
+        });
+        item.classList.add('playing');
+        if (!item.querySelector('.q-wave')) {
+          const wave = document.createElement('div');
+          wave.className = 'q-wave';
+          wave.innerHTML = '<span></span><span></span><span></span><span></span>';
+          item.insertBefore(wave, item.querySelector('.q-dur'));
+        }
+        const title = item.querySelector('.q-title').textContent;
+        const artist = item.querySelector('.q-artist').textContent;
+        document.getElementById('trackTitle').textContent = title;
+        document.getElementById('trackArtist').textContent = artist;
+        setPlayState(true);
+        addLog('tool', 'play_track(<b>"' + title + '"</b>)');
+      });
+    });
+
+    // simulate seek progress
+    let seekPct = 32;
+    setInterval(() => {
+      if (!isPlaying) return;
+      seekPct = (seekPct + 0.4) % 100;
+      document.getElementById('seekFill').style.width = seekPct + '%';
+    }, 600);
+
+    // ===================== PART 2: BROWSER =====================
+    const browserStage = document.getElementById('browserStage');
+    const browserPlaceholder = document.getElementById('browserPlaceholder');
+    const urlText = document.getElementById('urlText');
+    const browserTabLabel = document.querySelector('.browser-tab span');
+
+    function openInBrowser(url, label) {
+      urlText.textContent = url.replace('https://', '');
+      if (browserTabLabel) browserTabLabel.textContent = label || url.replace('https://', '').split('/')[0];
+      browserStage.innerHTML = `<iframe src="${url}" referrerpolicy="no-referrer"></iframe>`;
+      addLog('tool', 'open_browser_tab(<b>"' + url + '"</b>)');
+      addLog('warn', 'Some sites block embedding (X-Frame-Options) — open in real browser tab if blank.');
+    }
+
+    document.querySelectorAll('.bq-chip[data-url]').forEach(chip => {
+      chip.addEventListener('click', () => openInBrowser(chip.dataset.url, chip.textContent));
+    });
+
+    // ===================== PART 2: FILE MANAGER =====================
+    const filesGrid = document.getElementById('filesGrid');
+    const filesLog = document.getElementById('filesLog');
+
+    filesGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('.file-card');
+      if (!card) return;
+      card.classList.toggle('selected');
+    });
+
+    function selectedCards() {
+      return Array.from(document.querySelectorAll('.file-card.selected'));
+    }
+
+    document.getElementById('newFolderBtn').addEventListener('click', () => {
+      const name = prompt('Naye folder ka naam:', 'new_folder');
+      if (!name) return;
+      const card = document.createElement('div');
+      card.className = 'file-card folder';
+      card.dataset.name = name; card.dataset.type = 'folder';
+      card.innerHTML = `
+      <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="f-icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z"/></svg></div>
+      <div class="f-name">${name}</div>
+      <div class="f-meta">FOLDER · 0 items</div>`;
+      filesGrid.appendChild(card);
+      filesLog.innerHTML = 'Sir, folder <b>"' + name + '"</b> ban gaya!';
+      addLog('ok', 'create_folder(<b>"' + name + '"</b>)');
+    });
+
+    document.getElementById('newFileBtn').addEventListener('click', () => {
+      const name = prompt('Nayi file ka naam:', 'notes.txt');
+      if (!name) return;
+      const card = document.createElement('div');
+      card.className = 'file-card';
+      card.dataset.name = name; card.dataset.type = 'file';
+      card.innerHTML = `
+      <div class="f-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg></div>
+      <div class="f-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg></div>
+      <div class="f-name">${name}</div>
+      <div class="f-meta">0 KB</div>`;
+      filesGrid.appendChild(card);
+      filesLog.innerHTML = 'Sir, file <b>"' + name + '"</b> ban gayi!';
+      addLog('ok', 'create_file(<b>"' + name + '"</b>)');
+    });
+
+    document.getElementById('deleteSelBtn').addEventListener('click', () => {
+      const sel = selectedCards();
+      if (sel.length === 0) {
+        filesLog.innerHTML = 'Sir, pehle koi file/folder select karo delete karne ke liye.';
+        return;
+      }
+      const names = sel.map(c => c.dataset.name).join(', ');
+      sel.forEach(c => c.remove());
+      filesLog.innerHTML = 'Sir, delete kar diya: <b>' + names + '</b>';
+      addLog('warn', 'delete(<b>' + names + '</b>)');
+    });
+
+    // real bridge health polling
+    async function checkBridgeHealth() {
+      try {
+        const res = await fetch(BRIDGE_URL + "/health", { method: "GET" });
+        const data = await res.json();
+        document.getElementById('groqDot').style.background = data.groq ? '#2bffa3' : '#ff3b5c';
+        document.getElementById('bridgeDot').classList.remove('amber');
+        document.getElementById('bridgeMeta').textContent = 'online :8765';
+        return true;
+      } catch (err) {
+        document.getElementById('bridgeDot').classList.add('amber');
+        document.getElementById('bridgeMeta').textContent = 'offline';
+        return false;
+      }
+    }
+    checkBridgeHealth().then(ok => {
+      addLog(ok ? 'ok' : 'err', ok ? 'Paperclip bridge health check passed' : 'Bridge offline — start jarvis_paperclip_bridge.py');
+    });
+    setInterval(checkBridgeHealth, 15000);
+  </script>
+
+</body>
+
+</html>

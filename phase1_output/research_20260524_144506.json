@@ -1,0 +1,27 @@
+{
+  "topic": "Apna AI assistant banao 2026 — free full guide Hindi",
+  "trending_data": [
+    {
+      "title": "8 Mission Digital Bharat 2026 - Learn AI Powered Digital Marketing For Free",
+      "snippet": "Go to channel Rajesh Digital IQ · NotebookLM से 0% Hallucination वाला AI Assistant बनाएं | Complete Hindi Tutorial. Rajesh Digital ..."
+    },
+    {
+      "title": "AI Complete Crash Course for Beginners in Hindi",
+      "snippet": "Artificial Intelligence Full Course (Free) | Master AI Tools & Core Concepts ... Learn AI in 20 Minutes for Beginners (2026 Guide). The iScale• ..."
+    },
+    {
+      "title": "Google AI Studio 2026 Complete Tutorial Hindi | Images, Videos ...",
+      "snippet": "Google AI Studio 2026 Complete Tutorial Hindi | Images, Videos, Music, App — Sab FREE! ... Google Flow Complete Tutorial 2026 | AI Se Banao ..."
+    },
+    {
+      "title": "AI Courses Free In Hindi 2025 Playlist | Learn AI Skills Free by Marketing ...",
+      "snippet": "Here you will learn complete AI Courses free in Hindi 2025. Learn AI Skills with Industry Experts Full Practical Knowledge by Marketing Fundas Team."
+    },
+    {
+      "title": "How To Make A Free Android App Using AI | AI Se App Kaise Banaye ...",
+      "snippet": "Learn how to make a free Android App using AI, (AI Se App Kaise Banaye Without Coding 2026). learn in Hindi. Create an Android and iOS ..."
+    }
+  ],
+  "video_ideas": "Gemini error: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.0-flash\\nPlease retry in 51.838060893s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerMinute-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.0-flash'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.0-flash'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-2.0-flash', 'location': 'global'}}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '51s'}]}}",
+  "timestamp": "2026-05-24T14:45:06.167696"
+}

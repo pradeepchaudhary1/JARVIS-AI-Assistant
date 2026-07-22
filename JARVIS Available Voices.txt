@@ -1,0 +1,210 @@
+(.venv) D:\JARVIS-AI-Assistant>python fix_voices_registry.py
+
+Found 23 OneCore voice(s):
+  - MSTTS_V110_enAU_CatherineM
+  - MSTTS_V110_enAU_JamesM
+  - MSTTS_V110_enCA_LindaM
+  - MSTTS_V110_enCA_RichardM
+  - MSTTS_V110_enIE_SeanM
+  - MSTTS_V110_enIN_HeeraM
+  - MSTTS_V110_enIN_RaviM
+  - MSTTS_V110_enUS_DavidM
+  - MSTTS_V110_enUS_MarkM
+  - MSTTS_V110_enUS_ZiraM
+  - MSTTS_V110_hiIN_HemantM
+  - MSTTS_V110_hiIN_KalpanaM
+  - MSTTS_V110_itIT_CosimoM
+  - MSTTS_V110_itIT_ElsaM
+  - MSTTS_V110_jaJP_AyumiM
+  - MSTTS_V110_jaJP_HarukaM
+  - MSTTS_V110_jaJP_IchiroM
+  - MSTTS_V110_jaJP_SayakaM
+  - MSTTS_V110_koKR_HeamiM
+  - MSTTS_V110_ruRU_IrinaM
+  - MSTTS_V110_ruRU_PavelM
+  - MSTTS_V110_zhHK_DannyM
+  - MSTTS_V110_zhHK_TracyM
+
+Copying to SAPI5 registry...
+  OK   MSTTS_V110_enAU_CatherineM
+  OK   MSTTS_V110_enAU_JamesM
+  OK   MSTTS_V110_enCA_LindaM
+  OK   MSTTS_V110_enCA_RichardM
+  OK   MSTTS_V110_enIE_SeanM
+  OK   MSTTS_V110_enIN_HeeraM
+  OK   MSTTS_V110_enIN_RaviM
+  OK   MSTTS_V110_enUS_DavidM
+  OK   MSTTS_V110_enUS_MarkM
+  OK   MSTTS_V110_enUS_ZiraM
+  OK   MSTTS_V110_hiIN_HemantM
+  OK   MSTTS_V110_hiIN_KalpanaM
+  OK   MSTTS_V110_itIT_CosimoM
+  OK   MSTTS_V110_itIT_ElsaM
+  OK   MSTTS_V110_jaJP_AyumiM
+  OK   MSTTS_V110_jaJP_HarukaM
+  OK   MSTTS_V110_jaJP_IchiroM
+  OK   MSTTS_V110_jaJP_SayakaM
+  OK   MSTTS_V110_koKR_HeamiM
+  OK   MSTTS_V110_ruRU_IrinaM
+  OK   MSTTS_V110_ruRU_PavelM
+  OK   MSTTS_V110_zhHK_DannyM
+  OK   MSTTS_V110_zhHK_TracyM
+
+python check_voices.py
+============================================================
+  INSTALLED TTS VOICES
+============================================================
+
+TOTAL VOICES: 30
+
+AVAILABLE VOICES
+------------------------------------------------------------
+
+[0]
+Name : Microsoft David Desktop - English (United States)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_DAVID_11.0
+
+
+[1]
+Name : Microsoft James - English (Australia)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enAU_JamesM
+
+
+[2]
+Name : Microsoft Linda - English (Canada)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enCA_LindaM
+
+
+[3]
+Name : Microsoft Richard - English (Canada)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enCA_RichardM
+
+
+[4]
+Name : Microsoft Sean - English (Ireland)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enIE_SeanM
+
+
+[5]
+Name : Microsoft Heera - English (India)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enIN_HeeraM
+
+
+[6]
+Name : Microsoft Ravi - English (India)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enIN_RaviM
+
+
+[7]
+Name : Microsoft David - English (United States)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enUS_DavidM
+
+
+[8]
+Name : Microsoft Mark - English (United States)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enUS_MarkM
+
+
+[9]
+Name : Microsoft Zira - English (United States)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enUS_ZiraM
+
+
+[10]
+Name : Microsoft Hemant - Hindi (India)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_hiIN_HemantM
+
+
+[11]
+Name : Microsoft Kalpana - Hindi (India)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_hiIN_KalpanaM
+
+
+[12]
+Name : Microsoft Cosimo - Italian (Italy)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_itIT_CosimoM
+
+
+[13]
+Name : Microsoft Elsa - Italian (Italy)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_itIT_ElsaM
+
+
+[14]
+Name : Microsoft Ayumi - Japanese (Japan)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_jaJP_AyumiM
+
+
+[15]
+Name : Microsoft Haruka - Japanese (Japan)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_jaJP_HarukaM
+
+
+[16]
+Name : Microsoft Ichiro - Japanese (Japan)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_jaJP_IchiroM
+
+
+[17]
+Name : Microsoft Sayaka - Japanese (Japan)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_jaJP_SayakaM
+
+
+[18]
+Name : Microsoft Heami - Korean (Korean)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_koKR_HeamiM
+
+
+[19]
+Name : Microsoft Irina - Russian (Russia)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_ruRU_IrinaM
+
+
+[20]
+Name : Microsoft Pavel - Russian (Russia)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_ruRU_PavelM
+
+
+[21]
+Name : Microsoft Danny - Chinese (Traditional, Hong Kong S.A.R.)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_zhHK_DannyM
+
+
+[22]
+Name : Microsoft Tracy - Chinese (Traditional, Hong Kong S.A.R.)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_zhHK_TracyM
+
+
+[23]
+Name : Microsoft Catherine - English (Australia)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\MSTTS_V110_enAU_CatherineM
+
+
+[24]
+Name : Microsoft Zira Desktop - English (United States)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_EN-US_ZIRA_11.0
+
+
+[25]
+Name : Microsoft Elsa Desktop - Italian (Italy)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_IT-IT_ELSA_11.0
+
+
+[26]
+Name : Microsoft Haruka Desktop - Japanese
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_JA-JP_HARUKA_11.0
+
+
+[27]
+Name : Microsoft Heami Desktop - Korean
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_KO-KR_HEAMI_11.0
+
+
+[28]
+Name : Microsoft Irina Desktop - Russian
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_RU-RU_IRINA_11.0
+
+
+[29]
+Name : Microsoft Tracy Desktop - Chinese(Traditional, HongKong SAR)
+ID   : HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Speech\Voices\Tokens\TTS_MS_ZH-HK_TRACY_11.0

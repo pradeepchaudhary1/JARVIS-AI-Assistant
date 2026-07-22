@@ -1,0 +1,304 @@
+cat << 'PYEOF' > /mnt/user-data/outputs/jarvis_paperclip_bridge.py
+import os, sys, json, threading
+from datetime import datetime
+from dotenv import load_dotenv
+
+BASE_DIR    = os.path.join(os.environ.get("USERPROFILE", "C:/Users/hp"), "Desktop", "JARVIS-AI-Assistant")
+STATUS_FILE = os.path.join(BASE_DIR, "jarvis_status.json")
+LOG_FILE    = os.path.join(BASE_DIR, "paperclip_tasks.json")
+sys.path.insert(0, BASE_DIR)
+load_dotenv(os.path.join(BASE_DIR, ".env"))
+
+try:
+    from flask import Flask, request, jsonify
+    from flask_cors import CORS
+    FLASK_OK = True
+except ImportError:
+    FLASK_OK = False
+    print("Run: pip install flask flask-cors")
+
+# ---- Reuse JARVIS brain pieces (no mic/TTS needed here, just text in/out) ----
+try:
+    from groq import Groq
+    client = Groq(api_key=os.getenv("GROQ_API_KEY", ""))
+    GROQ_OK = True
+except Exception:
+    GROQ_OK = False
+
+try:
+    from Jarvis_prompts import JARVIS_MAIN_SYSTEM
+except ImportError:
+    JARVIS_MAIN_SYSTEM = (
+        "You are JARVIS, Pradeep sir ka AI assistant. Hinglish mein baat karo. "
+        "Chhote jawab do. Kabhi mat bolo 'As an AI'."
+    )
+
+try:
+    from jarvis_pc_control import control_pc
+    PC_OK = True
+except Exception:
+    PC_OK = False
+
+try:
+    from jarvis_social_lumix import handle_jarvis_command as lumix_cmd
+    LUMIX_OK = True
+except Exception:
+    LUMIX_OK = False
+
+PRIMARY_MODEL = "llama-3.1-8b-instant"
+BACKUP_MODEL  = "llama-3.3-70b-versatile"
+CHAT_HISTORY  = []   # simple in-memory session (per bridge run)
+
+
+def _load_status():
+    try:
+        with open(STATUS_FILE) as f:
+            return json.load(f)
+    except Exception:
+        return {"status": "unknown"}
+
+
+def _log_task(data):
+    tasks = []
+    if os.path.exists(LOG_FILE):
+        try:
+            with open(LOG_FILE) as f:
+                tasks = json.load(f)
+        except Exception:
+            pass
+    tasks.append({**data, "timestamp": datetime.now().isoformat()})
+    with open(LOG_FILE, "w") as f:
+        json.dump(tasks[-100:], f, indent=2)
+
+
+def _run_task(task_type, topic):
+    try:
+        if task_type == "youtube_pipeline":
+            from phase1_research_seo_script import run_phase1
+            run_phase1(topic)
+            return {"status": "success", "type": task_type, "topic": topic}
+        elif task_type == "social_post":
+            import requests
+            url = os.getenv("ZAPIER_WEBHOOK_URL", "")
+            if url:
+                requests.post(url, json={"content": topic}, timeout=10)
+                return {"status": "success", "type": task_type}
+            return {"status": "error", "message": "ZAPIER_WEBHOOK_URL missing"}
+        else:
+            return {"status": "received", "type": task_type, "task": topic}
+    except Exception as e:
+        return {"status": "error", "error": str(e), "type": task_type}
+
+
+def get_ai_reply(user_text, use_backup=False):
+    if not GROQ_OK:
+        return "Sir, GROQ_API_KEY .env mein set nahi hai."
+    model = BACKUP_MODEL if use_backup else PRIMARY_MODEL
+    messages = [{"role": "system", "content": JARVIS_MAIN_SYSTEM}]
+    messages.extend(CHAT_HISTORY[-10:])
+    messages.append({"role": "user", "content": user_text})
+    try:
+        resp = client.chat.completions.create(
+            model=model, messages=messages, max_tokens=150, temperature=0.85
+        )
+        return resp.choices[0].message.content.strip()
+    except Exception:
+        if not use_backup:
+            return get_ai_reply(user_text, use_backup=True)
+        return "Sir, thoda issue aa gaya. Phir se try karein."
+
+
+def handle_text_command(text):
+    """Same routing logic as agent.py's handle_command(), text-only version."""
+    t = text.lower()
+
+    if PC_OK:
+        pc_result = control_pc(t)
+        if pc_result:
+            return pc_result, "pc_control"
+
+    if any(w in t for w in ["lumix", "business card", "card post karo", "card dalo"]):
+        if LUMIX_OK:
+            return lumix_cmd(text), "lumix_post"
+        return "Sir, Lumix ke liye ZAPIER_WEBHOOK_URL .env mein set karo.", "lumix_post"
+
+    if any(w in t for w in ["video banao", "youtube pipeline", "video bana"]):
+        topic = t.replace("video banao", "").replace("video bana", "").strip() or "AI tools 2026"
+        threading.Thread(target=lambda: _log_task({**_run_task("youtube_pipeline", topic), "task": topic}), daemon=True).start()
+        return "Sir! Pipeline shuru ho gayi " + topic + " ke liye!", "youtube_pipeline"
+
+    if any(w in t for w in ["time kya hai", "kitne baje", "samay", "what is the time", "what's the time"]):
+        return "Sir, abhi " + datetime.now().strftime("%I:%M %p") + " baj rahe hain.", "time"
+
+    if any(w in t for w in ["what is the date", "date kya hai", "aaj ki date"]):
+        return "Sir, aaj " + datetime.now().strftime("%d %B %Y") + " hai.", "date"
+
+    if any(w in t for w in ["status", "system check", "kya chal raha"]):
+        parts = ["Sir sab theek hai!"]
+        if PC_OK: parts.append("PC Control ON")
+        if LUMIX_OK: parts.append("Lumix ON")
+        if GROQ_OK: parts.append("Groq ON")
+        return " | ".join(parts), "status"
+
+    return None, None
+
+
+if FLASK_OK:
+    app = Flask(__name__)
+    CORS(app)  # allow jarvis_app.html (file:// or LAN) to call this bridge
+
+    @app.route("/health", methods=["GET"])
+    def health():
+        return jsonify({
+            "status": "online", "agent": "JARVIS",
+            "timestamp": datetime.now().isoformat(),
+            "groq": GROQ_OK, "pc_control": PC_OK, "lumix": LUMIX_OK,
+        })
+
+    @app.route("/chat", methods=["POST"])
+    def chat():
+        """Main endpoint used by jarvis_app.html (web UI) and phone browser."""
+        data = request.get_json(force=True) or {}
+        text = (data.get("message") or "").strip()
+        if not text:
+            return jsonify({"error": "message required"}), 400
+
+        print("[UI->JARVIS]", text)
+
+        # 1) try built-in command routing first
+        result, tool_used = handle_text_command(text)
+        if result:
+            CHAT_HISTORY.append({"role": "user", "content": text})
+            CHAT_HISTORY.append({"role": "assistant", "content": result})
+            _log_task({"task": text, "type": "chat_command", "tool": tool_used, "reply": result})
+            return jsonify({"reply": result, "tool": tool_used, "source": "command"})
+
+        # 2) fallback to AI
+        reply = get_ai_reply(text)
+        CHAT_HISTORY.append({"role": "user", "content": text})
+        CHAT_HISTORY.append({"role": "assistant", "content": reply})
+        if len(CHAT_HISTORY) > 20:
+            del CHAT_HISTORY[:len(CHAT_HISTORY) - 20]
+        _log_task({"task": text, "type": "chat_ai", "reply": reply})
+        return jsonify({"reply": reply, "tool": None, "source": "ai"})
+
+    @app.route("/task", methods=["POST"])
+    def handle_task():
+        data = request.get_json(force=True) or {}
+        task = data.get("task", "")
+        task_type = data.get("type", "general")
+        print("[Paperclip] Task:", task_type, "-", task[:60])
+        _log_task({"task": task, "type": task_type, "status": "received"})
+        threading.Thread(target=lambda: _log_task({**_run_task(task_type, task), "task": task}), daemon=True).start()
+        return jsonify({"accepted": True, "task": task, "type": task_type})
+
+    @app.route("/status", methods=["GET"])
+    def get_status():
+        tasks = []
+        if os.path.exists(LOG_FILE):
+            try:
+                with open(LOG_FILE) as f:
+                    tasks = json.load(f)
+            except Exception:
+                pass
+        return jsonify({"jarvis": _load_status(), "recent_tasks": tasks[-5:]})
+
+    @app.route("/run", methods=["POST"])
+    def run_pipeline():
+        data = request.get_json(force=True) or {}
+        topic = data.get("topic", "")
+        if not topic:
+            return jsonify({"error": "topic required"}), 400
+        def bg():
+            try:
+                from phase1_research_seo_script import run_phase1
+                from phase2_thumbnail_upload import run_phase2
+                p1 = run_phase1(topic)
+                run_phase2(p1, None, 0)
+                _log_task({"type": "full_pipeline", "topic": topic, "status": "complete"})
+                print("[Pipeline] Complete:", topic)
+            except Exception as e:
+                print("[Pipeline] Error:", e)
+        threading.Thread(target=bg, daemon=True).start()
+        return jsonify({"accepted": True, "topic": topic, "message": "Pipeline shuru ho gayi"})
+
+    @app.route("/files/list", methods=["GET"])
+    def files_list():
+        sub = request.args.get("path", "")
+        target = os.path.join(BASE_DIR, sub) if sub else BASE_DIR
+        target = os.path.abspath(target)
+        if not target.startswith(os.path.abspath(BASE_DIR)):
+            return jsonify({"error": "invalid path"}), 400
+        items = []
+        try:
+            for name in os.listdir(target):
+                full = os.path.join(target, name)
+                items.append({
+                    "name": name,
+                    "type": "folder" if os.path.isdir(full) else "file",
+                    "size_kb": round(os.path.getsize(full) / 1024, 1) if os.path.isfile(full) else None,
+                })
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+        return jsonify({"path": sub, "items": items})
+
+    @app.route("/files/create", methods=["POST"])
+    def files_create():
+        data = request.get_json(force=True) or {}
+        name = data.get("name", "")
+        kind = data.get("type", "file")
+        sub  = data.get("path", "")
+        if not name:
+            return jsonify({"error": "name required"}), 400
+        target_dir = os.path.join(BASE_DIR, sub) if sub else BASE_DIR
+        target = os.path.join(target_dir, name)
+        try:
+            if kind == "folder":
+                os.makedirs(target, exist_ok=True)
+            else:
+                open(target, "a").close()
+            return jsonify({"created": name, "type": kind})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+    @app.route("/files/delete", methods=["POST"])
+    def files_delete():
+        data = request.get_json(force=True) or {}
+        name = data.get("name", "")
+        sub  = data.get("path", "")
+        if not name:
+            return jsonify({"error": "name required"}), 400
+        target = os.path.join(BASE_DIR, sub, name) if sub else os.path.join(BASE_DIR, name)
+        try:
+            if os.path.isdir(target):
+                os.rmdir(target)  # only empty folders, for safety
+            else:
+                os.remove(target)
+            return jsonify({"deleted": name})
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+
+
+def main():
+    if not FLASK_OK:
+        print("Run: pip install flask flask-cors")
+        return
+    import socket
+    hostname = socket.gethostname()
+    try:
+        lan_ip = socket.gethostbyname(hostname)
+    except Exception:
+        lan_ip = "unknown"
+    print("=" * 45)
+    print("  JARVIS <-> Paperclip Bridge")
+    print("  Port: 8765")
+    print("  Local:  http://127.0.0.1:8765")
+    print("  Phone (same WiFi): http://" + lan_ip + ":8765")
+    print("=" * 45)
+    app.run(host="0.0.0.0", port=8765, debug=False)
+
+
+if __name__ == "__main__":
+    main()
+PYEOF
+echo done
