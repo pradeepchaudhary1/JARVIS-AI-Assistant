@@ -1,47 +1,52 @@
 """
-JARVIS Brain V3
+JARVIS Brain Orchestrator
+
+Coordinates all brain modules.
+
+Author: Lumix Branding
 """
 
-from __future__ import annotations
-
-from brain.router import Router
-from brain.context import ContextBuilder
-from brain.dispatcher import Dispatcher
+from brain.context import ContextManager
 from brain.conversation import ConversationManager
+from brain.router import Router
+from brain.dispatcher import Dispatcher
 
 
 class Brain:
 
     def __init__(self):
 
-        self.router = Router()
+        self.context = ContextManager()
 
-        self.context = ContextBuilder()
+        self.conversation = ConversationManager()
+
+        self.router = Router()
 
         self.dispatcher = Dispatcher()
 
-        self.memory = ConversationManager()
+    def process(self, user_message: str):
 
-    def process(self, text: str):
+        # Save user message
+        self.conversation.add_user_message(user_message)
 
-        self.memory.add_user(text)
-
+        # Collect runtime context
         context = self.context.build()
 
-        route = self.router.detect(text)
+        # Decide route
+        route = self.router.route(user_message)
 
-        result = self.dispatcher.dispatch(route, text)
+        # Execute tool
+        result = self.dispatcher.dispatch(
+            tool=route,
+            command=user_message
+        )
 
-        self.memory.add_assistant("processed")
+        # Save assistant response
+        self.conversation.add_assistant_message("processed")
 
         return {
-
             "context": context,
-
             "route": route,
-
             "result": result,
-
-            "history": self.memory.get_history()
-
+            "history": self.conversation.get_recent()
         }
