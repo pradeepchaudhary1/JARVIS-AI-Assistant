@@ -1,22 +1,9 @@
 from llm.client_groq import GroqClient
 
-
 client = GroqClient()
 
-reply = client.chat(
-
-    [
-
-        {
-
-            "role": "user",
-
-            "content": "Reply only with: JARVIS ONLINE"
-
-        }
-
-    ]
-
+response = client.generate(
+    "Say hello in one short sentence."
 )
 
-print(reply)
+print(response)
