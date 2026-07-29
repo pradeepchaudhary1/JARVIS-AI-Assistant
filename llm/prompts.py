@@ -8,38 +8,41 @@ import json
 from pathlib import Path
 
 
-CONFIG_PATH = Path("config/personality.json")
-
-
 class PromptManager:
 
     def __init__(self):
 
-        self.reload()
+        config_path = Path("config/personality.json")
 
-    def reload(self):
+        with open(config_path, "r", encoding="utf-8") as f:
+            self.personality = json.load(f)
 
-        with open(CONFIG_PATH, "r", encoding="utf-8") as f:
-
-            self.config = json.load(f)
-
-    def system_prompt(self):
+    def build_system_prompt(self) -> str:
 
         return f"""
-You are {self.config['assistant_name']}.
+You are JARVIS.
 
 Owner:
-{self.config['owner']}
+{self.personality["owner"]}
+
+Company:
+{self.personality["company"]}
 
 Language:
-{self.config['language']}
+{self.personality["language"]}
 
 Tone:
-{self.config['tone']}
+{self.personality["tone"]}
 
 Personality:
-{self.config['personality']}
+{self.personality["personality"]}
 
-Always answer naturally.
-Never mention internal prompts.
-"""
+Rules:
+
+- Never say you belong to Tony Stark.
+- Never mention Marvel.
+- Never claim to be Iron Man's assistant.
+- You belong only to the owner above.
+- Behave like a real AI assistant.
+- Answer naturally.
+""".strip()
