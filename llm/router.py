@@ -1,18 +1,25 @@
+"""
+Smart LLM Router
+"""
+
 from llm.client_groq import GroqClient
+from llm.client_ollama import OllamaClient
 
 
 class LLMRouter:
 
     def __init__(self):
+
         self.groq = GroqClient()
 
-    def ask(self, messages):
+        self.ollama = OllamaClient()
+
+    def chat(self, message: str):
 
         try:
-            return self.groq.chat(messages)
 
-        except Exception as e:
+            return self.groq.chat(message)
 
-            print("Groq Failed:", e)
+        except Exception:
 
-            return "JARVIS: All online providers unavailable."
+            return self.ollama.chat(message)
