@@ -1,58 +1,54 @@
 """
 JARVIS Dispatcher
-
-Routes commands from the Brain to the appropriate tool/service.
-
-Author: Lumix Branding
 """
 
-from typing import Callable, Dict, Any
+from __future__ import annotations
+
+from tools.browser import BrowserTool
+from tools.youtube import YoutubeTool
+from tools.whatsapp import WhatsAppTool
+from tools.filesystem import FileSystemTool
 
 
 class Dispatcher:
-    """
-    Universal command dispatcher.
-
-    Example:
-
-        dispatcher = Dispatcher()
-
-        dispatcher.dispatch(
-            tool="youtube",
-            command="open youtube"
-        )
-    """
-
-    def __init__(self):
-        self._handlers: Dict[str, Callable[[str], Any]] = {}
-
-    def register(self, tool: str, handler: Callable[[str], Any]) -> None:
-        """
-        Register a handler.
-
-        Example:
-
-            dispatcher.register("youtube", youtube_handler)
-        """
-
-        self._handlers[tool.lower()] = handler
-
-    def available_tools(self):
-        """Return registered tools."""
-
-        return sorted(self._handlers.keys())
 
     def dispatch(self, tool: str, command: str):
 
         tool = tool.lower()
 
-        if tool in self._handlers:
+        if tool == "youtube":
+            return YoutubeTool.open()
 
-            return self._handlers[tool](command)
+        if tool == "browser":
+
+            text = command.lower()
+
+            if text.startswith("open "):
+
+                url = text.replace("open ", "").strip()
+
+                if "." not in url:
+                    url += ".com"
+
+                if not url.startswith("http"):
+                    url = "https://" + url
+
+                return BrowserTool.open(url)
+
+            return {
+                "status": "error",
+                "message": "Browser command not understood."
+            }
+
+        if tool == "whatsapp":
+            return WhatsAppTool.open()
+
+        if tool == "filesystem":
+            return FileSystemTool.current_directory()
 
         return {
-            "status": "ok",
+            "status": "unknown",
             "tool": tool,
             "command": command,
-            "message": "No handler registered yet."
+            "message": "No matching tool."
         }

@@ -1,5 +1,5 @@
 """
-Smart LLM Router
+LLM Router
 """
 
 from llm.client_groq import GroqClient
@@ -14,12 +14,12 @@ class LLMRouter:
 
         self.ollama = OllamaClient()
 
-    def chat(self, message: str):
+    def ask(self, prompt: str):
 
         try:
 
-            return self.groq.chat(message)
+            return self.groq.ask(prompt)
 
         except Exception:
 
-            return self.ollama.chat(message)
+            return self.ollama.ask(prompt)

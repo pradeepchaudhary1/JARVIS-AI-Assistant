@@ -3,6 +3,8 @@ from brain.dispatcher import Dispatcher
 from brain.context import ContextManager
 from brain.conversation import ConversationManager
 
+from llm.router import LLMRouter
+from brain.dispatcher import Dispatcher
 from memory.short_memory import ShortMemory
 from memory.long_memory import LongMemory
 
@@ -10,12 +12,14 @@ from memory.long_memory import LongMemory
 class Brain:
 
     def __init__(self):
-
+        
+        self.llm = LLMRouter()
         self.router = Router()
         self.dispatcher = Dispatcher()
         self.context = ContextManager()
         self.conversation = ConversationManager()
 
+        self.dispatcher = Dispatcher()
         self.short_memory = ShortMemory()
         self.long_memory = LongMemory()
 
@@ -37,8 +41,40 @@ class Brain:
         route = self.router.route(user_message)
 
         # Dispatch
-        result = self.dispatcher.dispatch(route, user_message)
+        result = self.dispatcher.dispatch(
+            tool=route,
+            command=user_message
+        )
+        assistant_reply = ""
 
+        if result.get("status") == "success":
+
+            tool = result.get("tool", "")
+
+            assistant_reply = self.llm.ask(
+                f"""
+        User command:
+
+        {user_message}
+
+        Tool executed successfully.
+
+        Reply in one short sentence.
+
+        Owner:
+
+        Pradeep Chaudhary
+
+        Company:
+
+        Lumix Branding
+        """
+            )
+
+        else:
+
+             assistant_reply = self.llm.ask(user_message)
+                
         assistant_reply = "processed"
 
         self.conversation.add_assistant_message(assistant_reply)

@@ -51,3 +51,9 @@ class OllamaClient:
         response.raise_for_status()
 
         return response.json()["response"]
+
+    def ask(self, message: str) -> str:
+        """
+        Standard interface used by LLMRouter.
+        """
+        return self.chat(message)    

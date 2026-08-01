@@ -51,3 +51,9 @@ class GroqClient:
         )
 
         return response.choices[0].message.content
+
+    def ask(self, message: str) -> str:
+        """
+        Standard interface used by LLMRouter.
+        """
+        return self.chat(message)
