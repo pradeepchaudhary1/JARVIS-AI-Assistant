@@ -14,8 +14,13 @@ class SpeechEngine:
     def __init__(self):
 
         self.manager = MicrophoneManager()
-        self.recognizer = self.manager.recognizer
 
+        from voice.audio_optimizer import AudioOptimizer
+
+        self.recognizer = AudioOptimizer.optimize(
+            self.manager.recognizer
+        )    
+        
     def recognize(self):
 
         microphone = self.manager.get_default_microphone()
