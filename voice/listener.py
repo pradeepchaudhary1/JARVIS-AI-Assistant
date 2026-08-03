@@ -3,31 +3,17 @@ JARVIS Voice Listener
 Production Version
 """
 
-from __future__ import annotations
-
-import speech_recognition as sr
-
-from voice.microphone_manager import MicrophoneManager
+from voice.speech_engine import SpeechEngine
 
 
 class VoiceListener:
 
     def __init__(self):
 
-        self.manager = MicrophoneManager()
-
-        self.recognizer = self.manager.recognizer
+        self.engine = SpeechEngine()
 
     def listen(self):
 
-        mic = self.manager.get_default_microphone()
+        result = self.engine.recognize()
 
-        with mic as source:
-
-            print("🎤 Listening...")
-
-            audio = self.recognizer.listen(source)
-
-        text = self.recognizer.recognize_google(audio)
-
-        return text
+        return result
