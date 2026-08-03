@@ -1,6 +1,6 @@
 """
 JARVIS Brain Orchestrator
-Production Version
+Production Ready
 """
 
 from brain.router import Router
@@ -13,6 +13,9 @@ from llm.router import LLMRouter
 from memory.short_memory import ShortMemory
 from memory.long_memory import LongMemory
 
+from brain.error_handler import ErrorHandler
+from brain.logger import JarvisLogger
+
 
 class Brain:
 
@@ -20,6 +23,7 @@ class Brain:
 
         self.router = Router()
         self.dispatcher = Dispatcher()
+
         self.context = ContextManager()
         self.conversation = ConversationManager()
 
@@ -30,119 +34,131 @@ class Brain:
 
     def process(self, user_message: str):
 
-        # -----------------------------
-        # Save user message
-        # -----------------------------
+        try:
 
-        self.conversation.add_user_message(user_message)
-        self.short_memory.add("user", user_message)
-        long_memory = self.long_memory.all()
+            # ---------------------------------
+            # Save User Message
+            # ---------------------------------
 
-        # -----------------------------
-        # Context
-        # -----------------------------
+            self.conversation.add_user_message(user_message)
+            self.short_memory.add("user", user_message)
 
-        context = self.context.build()
+            # ---------------------------------
+            # Context
+            # ---------------------------------
 
-        # -----------------------------
-        # Routing
-        # -----------------------------
+            context = self.context.build()
 
-        route = self.router.route(user_message)
+            # ---------------------------------
+            # Long Memory Snapshot
+            # ---------------------------------
 
-        # -----------------------------
-        # Execute Tool
-        # -----------------------------
+            long_memory = self.long_memory.all()
 
-        result = self.dispatcher.dispatch(
-            tool=route,
-            command=user_message
-        )
+            # ---------------------------------
+            # Route
+            # ---------------------------------
 
-        # -----------------------------
-        # Generate Assistant Reply
-        # -----------------------------
+            route = self.router.route(user_message)
 
-        if result.get("status") == "success":
+            # ---------------------------------
+            # Execute Tool
+            # ---------------------------------
 
-            assistant_reply = self.llm.ask(
-                f"""
-User command:
+            tool_result = self.dispatcher.dispatch(
+                tool=route,
+                command=user_message
+            )
+
+            # ---------------------------------
+            # Assistant Reply
+            # ---------------------------------
+
+            if tool_result.get("status") == "success":
+
+                assistant_reply = self.llm.ask(
+                    f"""
+User Command:
+
 {user_message}
 
-The requested tool has already been executed successfully.
+Tool executed successfully.
 
 Reply naturally in ONE short sentence.
 
 Owner:
-Pradeep Chaudhary
+{long_memory.get("owner", "Pradeep")}
 
 Company:
-Lumix Branding
+{long_memory.get("company", "Lumix Branding")}
 """
+                )
+
+            else:
+
+                assistant_reply = self.llm.ask(user_message)
+
+            # ---------------------------------
+            # Save Assistant Reply
+            # ---------------------------------
+
+            self.conversation.add_assistant_message(
+                assistant_reply
             )
 
-        else:
-
-            assistant_reply = self.llm.ask(user_message)
-
-        # -----------------------------
-        # Save Assistant Reply
-        # -----------------------------
-
-        self.conversation.add_assistant_message(
-            assistant_reply
-        )
-
-        self.short_memory.add(
-            "assistant",
-            assistant_reply
-        )
-
-        # -----------------------------
-        # Learn User Information
-        # -----------------------------
-
-        text = user_message.lower()
-
-        if text.startswith("my name is"):
-
-            name = user_message[10:].strip()
-
-            self.long_memory.remember(
-                "owner",
-                name
+            self.short_memory.add(
+                "assistant",
+                assistant_reply
             )
 
-        elif text.startswith("my company is"):
+            # ---------------------------------
+            # Learn User Information
+            # ---------------------------------
 
-            company = user_message[13:].strip()
+            lower = user_message.lower()
 
-            self.long_memory.remember(
-                "company",
-                company
-            )
+            if lower.startswith("my name is"):
 
-        # -----------------------------
-        # Final Response
-        # -----------------------------
+                self.long_memory.remember(
+                    "owner",
+                    user_message[10:].strip()
+                )
 
-        return {
-            "status": "success",
+            elif lower.startswith("my company is"):
 
-            "context": context,
+                self.long_memory.remember(
+                    "company",
+                    user_message[13:].strip()
+                )
 
-            "route": route,
+            # ---------------------------------
+            # Final Response
+            # ---------------------------------
 
-            "tool_result": result,
+            return {
 
-            "assistant_reply": assistant_reply,
+                "status": "success",
 
-            "history": self.conversation.get_recent(),
+                "context": context,
 
-            "conversation": self.conversation.get_recent(),
+                "route": route,
 
-            "short_memory": self.short_memory.get(),
+                "tool_result": tool_result,
 
-            "long_memory": self.long_memory.all(),
-        }    
+                "assistant_reply": assistant_reply,
+
+                "history": self.conversation.get_recent(),
+
+                "conversation": self.conversation.get_recent(),
+
+                "short_memory": self.short_memory.get(),
+
+                "long_memory": self.long_memory.all(),
+
+            }
+
+        except Exception as e:
+
+            JarvisLogger.error(str(e))
+
+            return ErrorHandler.handle(e)
