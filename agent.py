@@ -144,7 +144,7 @@ except Exception:
 PRIMARY_MODEL = "llama-3.1-8b-instant"
 BACKUP_MODEL  = "llama-3.3-70b-versatile"
 OLLAMA_MODEL    = "hermes3:latest"
-OLLAMA_URL      = "http://localhost:11434/api/chat"
+OLLAMA_URL      = "http://127.0.0.1:11434/api/tags"
 
 # Groq client
 GROQ_KEY=os.getenv("GROQ_API_KEY","").strip()
@@ -157,13 +157,12 @@ if GROQ_KEY:
 # Ollama availability check
 def _check_ollama():
     try:
-        r = _requests.get("http://localhost:11434", timeout=2)
+        r = _requests.get("http://127.0.0.1:11434", timeout=2)
         return r.status_code == 200
     except:
         return False
-if_check_ollama():
-    
-OLLAMA_AVAILABLE = if_check_ollama()
+if _check_ollama():
+OLLAMA_AVAILABLE =_check_ollama()
 print(f"[JARVIS] Ollama available: {OLLAMA_AVAILABLE}")
 
 def query_llm(messages, model=PRIMARY_MODEL):

@@ -10,6 +10,10 @@ import subprocess
 import urllib.parse
 import shutil
 
+from tools.intent_parser import IntentParser
+from tools.multi_command_parser import MultiCommandParser
+
+from tools.command_parser import CommandParser
 from tools.windows_app_scanner import WindowsAppScanner
 from tools.app_registry import APP_REGISTRY
 from tools.browser import BrowserTool
@@ -42,6 +46,14 @@ class UniversalLauncher:
     def __init__(self):
 
         self.scanner = WindowsAppScanner()
+        # Multi command parser
+        self.multi_parser = MultiCommandParser()
+
+        # Single command parser
+        self.command_parser = CommandParser()
+
+        # Intent parser
+        self.intent = IntentParser()
 
         alias_file = os.path.join(
             "config",
@@ -62,9 +74,29 @@ class UniversalLauncher:
 
             self.aliases = {}
 
+    def launch_multiple(self, command: str):
+
+        commands = self.multi_parser.split(command)
+
+        results = []
+
+        for item in commands:
+
+            result = self.launch(item)
+
+            results.append(result)
+
+        return results
+
     def launch(self, target: str):
 
-        target = target.lower().strip()
+        target = self.command_parser.parse(target)
+
+        intent = self.intent.parse(target)
+
+        target = intent["target"]
+
+        query = intent["query"]
 
         target = self.aliases.get(
             target,
@@ -99,7 +131,7 @@ class UniversalLauncher:
             subprocess.Popen(exe)
 
             return {
-                
+
                 "status": "success",
                 "type": "path_app",
                 "path": exe
@@ -135,15 +167,37 @@ class UniversalLauncher:
 
         if target in self.WEBSITE_REGISTRY:
 
-            BrowserTool.open(
-                self.WEBSITE_REGISTRY[target]
-            )
+            url = self.WEBSITE_REGISTRY[target]
+            if query:
+                if target == "google":
+                    url = (
+                        "https://www.google.com/search?q="
+                        + urllib.parse.quote(query)
+                    )
+
+                elif target == "youtube":
+                    url = (
+                        "https://www.youtube.com/results?search_query="
+                        + urllib.parse.quote(query)
+                    )    
+
+                elif target == "github":
+                    url = (
+                        "https://github.com/search?q="
+                        + urllib.parse.quote(query)
+                    )
+
+            BrowserTool.open(url)
 
             return {
 
                 "status": "success",
+
                 "type": "website",
-                "name": target
+
+                "name": target,
+
+                "query": query
 
             }
 
