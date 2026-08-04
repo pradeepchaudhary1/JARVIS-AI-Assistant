@@ -4,10 +4,9 @@ JARVIS Production Dispatcher
 
 from __future__ import annotations
 
-from tools.youtube import YoutubeTool
 from tools.browser import BrowserTool
-from tools.whatsapp import WhatsAppTool
 from tools.filesystem import FileSystemTool
+from tools.universal_launcher import UniversalLauncher
 
 
 class Dispatcher:
@@ -16,28 +15,53 @@ class Dispatcher:
 
         tool = tool.lower()
 
-        if tool == "youtube":
-            return YoutubeTool.open()
+        # -------------------------
+        # Universal Open Commands
+        # -------------------------
+
+        if tool == "launcher":
+
+            text = command.lower()
+
+            target = (
+                text.replace("open", "")
+                    .replace("launch", "")
+                    .replace("start", "")
+                    .strip()
+            )
+
+            return UniversalLauncher.launch(target)
+
+        # -------------------------
+        # Browser
+        # -------------------------
 
         elif tool == "browser":
-
-            url = "https://google.com"
 
             text = command.lower()
 
             if "http://" in text or "https://" in text:
-                url = command.strip()
 
-            return BrowserTool.open(url)
+                return BrowserTool.open(command.strip())
 
-        elif tool == "whatsapp":
-            return WhatsAppTool.open()
+            return BrowserTool.open("https://google.com")
+
+        # -------------------------
+        # Filesystem
+        # -------------------------
 
         elif tool == "filesystem":
+
             return FileSystemTool.current_directory()
 
+        # -------------------------
+
         return {
+
             "status": "error",
+
             "tool": tool,
-            "message": "Unknown tool."
+
+            "message": "Unknown Tool"
+
         }

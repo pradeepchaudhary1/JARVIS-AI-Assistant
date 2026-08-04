@@ -13,12 +13,23 @@ class Router:
     Determines where a command should be routed.
     """
 
-    def detect(self, text: str) -> str:
+    def detect(self, text: str):
         """
-        Detect the best route for the given text.
+        Detect the best route for the given command.
         """
 
         text = text.lower()
+
+        # Universal launcher commands
+        if any(
+            text.startswith(x)
+            for x in [
+                "open",
+                "launch",
+                "start"
+            ]
+        ):
+            return "launcher"
 
         if "weather" in text:
             return "weather"
@@ -26,12 +37,12 @@ class Router:
         if "browser" in text:
             return "browser"
 
-        if "youtube" in text:
-            return "youtube"
+        if "filesystem" in text:
+            return "filesystem"
 
         return "llm"
 
-    def route(self, text: str) -> str:
+    def route(self, text: str):
         """
         Public routing method.
 
