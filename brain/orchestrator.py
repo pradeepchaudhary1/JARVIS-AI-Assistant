@@ -76,23 +76,42 @@ class Brain:
 
             if tool_result.get("status") == "success":
 
-                assistant_reply = self.llm.ask(
-                    f"""
-User Command:
+                tool_type = tool_result.get("type", "")
 
-{user_message}
+                if tool_type == "installed_app":
 
-Tool executed successfully.
+                    assistant_reply = f"{user_message} completed."
 
-Reply naturally in ONE short sentence.
+                elif tool_type == "path_app":
 
-Owner:
-{long_memory.get("owner", "Pradeep")}
+                    assistant_reply = f"{user_message} completed."
 
-Company:
-{long_memory.get("company", "Lumix Branding")}
-"""
-                )
+                elif tool_type == "application":
+
+                    assistant_reply = f"{user_message} completed."
+
+                elif tool_type == "website":
+
+                    name = tool_result.get("name", "")
+
+                    if tool_result.get("query"):
+
+                        assistant_reply = (
+                            f"{name.title()} search opened for "
+                            f"{tool_result['query']}."
+                        )
+                    else:
+                        assistant_reply = f"{name.title()} opened."
+
+                elif tool_type == "search":
+
+                    assistant_reply = (
+                        f"Searching for {tool_result['query']}."
+                    )
+
+                else:
+
+                    assistant_reply = "Done."
 
             else:
 
