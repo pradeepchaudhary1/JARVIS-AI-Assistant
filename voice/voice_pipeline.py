@@ -25,13 +25,11 @@ class VoicePipeline:
         result = self.listener.listen()
 
         if result["status"] != "success":
-
             return result
 
         text = result.get("text", "").strip()
 
         if not text:
-
             return {
                 "status": "empty",
                 "text": ""
@@ -53,7 +51,15 @@ class VoicePipeline:
         reply = brain_result.get(
             "assistant_reply",
             ""
-        )
+        ).strip()
+
+        if not reply:
+            brain_result["speech_result"] = {
+                "status": "empty",
+                "text": ""
+            }
+
+            return brain_result
 
         # -------------------------
         # Assistant Reply → TTS
@@ -63,6 +69,12 @@ class VoicePipeline:
 
         brain_result["speech_result"] = speech_result
 
-        return brain_result
+        # -------------------------
+        # TTS Failure
+        # -------------------------
 
-        return self.brain.process(result["text"])
+        if speech_result.get("status") != "success":
+            brain_result["status"] = "error"
+            brain_result["speech_error"] = speech_result
+
+        return brain_result

@@ -17,13 +17,20 @@ def main():
     print("\nVOICE PIPELINE RESULT:")
     print(result)
 
-    if result.get("status") == "success":
-
-        print("\n✅ Voice → Brain → Tool → Response → TTS successful")
-
-    else:
-
+    if result.get("status") != "success":
         print("\n❌ Voice pipeline failed")
+        return
+
+    speech_result = result.get("speech_result", {})
+
+    if speech_result.get("status") != "success":
+        print("\n❌ TTS failed")
+        print(speech_result)
+        return
+
+    print("\n" + "=" * 50)
+    print("✅ Voice → Brain → Tool → Response → TTS successful")
+    print("=" * 50)
 
 
 if __name__ == "__main__":
