@@ -10,7 +10,7 @@ def main():
     pipeline = VoicePipeline()
 
     print("\n🎤 Speak a command...")
-    print("Example: open chrome")
+    print("Example: Hey Jarvis open Chrome")
 
     result = pipeline.run()
 
@@ -18,18 +18,31 @@ def main():
     print(result)
 
     if result.get("status") != "success":
-        print("\n❌ Voice pipeline failed")
+
+        print("\n⚠️ Voice pipeline did not execute a command.")
+
+        if result.get("status") == "ignored":
+            print("Reason: Wake word was not detected.")
+            print("Say: Hey Jarvis open Chrome")
+
+        elif result.get("status") == "wake":
+            print("Wake word detected, but no command was given.")
+
         return
 
-    speech_result = result.get("speech_result", {})
+    speech_result = result.get(
+        "speech_result",
+        {},
+    )
 
     if speech_result.get("status") != "success":
+
         print("\n❌ TTS failed")
         print(speech_result)
         return
 
     print("\n" + "=" * 50)
-    print("✅ Voice → Brain → Tool → Response → TTS successful")
+    print("✅ Voice → Wake Word → Brain → Tool → Response → TTS successful")
     print("=" * 50)
 
 

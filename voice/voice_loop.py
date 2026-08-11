@@ -9,7 +9,7 @@ from __future__ import annotations
 import time
 
 from voice.voice_controller import VoiceController
-from voice.wake_word import WakeWord
+from voice.wake_word import WakeWordDetector
 from voice.assistant_state import AssistantState
 from voice.tts import TTS
 
@@ -19,7 +19,7 @@ class VoiceLoop:
     def __init__(self):
 
         self.controller = VoiceController()
-        self.wake = WakeWord()
+        self.wake = WakeWordDetector()
         self.state = AssistantState()
         self.tts = TTS()
 

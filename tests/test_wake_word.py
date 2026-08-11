@@ -1,23 +1,64 @@
-from voice.wake_word import WakeWord
+from voice.wake_word import WakeWordDetector
 
-wake = WakeWord()
 
-tests = [
+def test_wake_word():
 
-    "jarvis",
-    "hello jarvis",
-    "hey jarvis",
-    "hi jarvis",
+    tests = [
+        ("hey jarvis", "wake_only"),
+        ("hello jarvis", "wake_only"),
+        ("hi jarvis", "wake_only"),
+        ("jarvis", "wake_only"),
 
-    "chrome",
-    "youtube",
+        ("hey jarvis open chrome", "command"),
+        ("hello jarvis open chrome", "command"),
+        ("hi jarvis open chrome", "command"),
+        ("jarvis open chrome", "command"),
 
-]
+        ("open chrome", "ignored"),
+        ("hello", "ignored"),
+        ("2020", "ignored"),
+    ]
 
-for t in tests:
+    for text, expected_status in tests:
 
-    print(t)
+        result = WakeWordDetector.detect(text)
 
-    print(wake.detected(t))
+        print("\nINPUT :", text)
+        print("RESULT:", result)
 
-    print()
+        assert result["status"] == expected_status
+
+    # ---------------------------------
+    # Command extraction
+    # ---------------------------------
+
+    result = WakeWordDetector.detect(
+        "hey jarvis open chrome"
+    )
+
+    assert result["wake_word"] is True
+    assert result["command"] == "open chrome"
+
+    result = WakeWordDetector.detect(
+        "jarvis search youtube lofi music"
+    )
+
+    assert result["wake_word"] is True
+    assert result["command"] == "search youtube lofi music"
+
+    # ---------------------------------
+    # Case preservation
+    # ---------------------------------
+
+    result = WakeWordDetector.detect(
+        "Hey Jarvis open Chrome"
+    )
+
+    assert result["wake_word"] is True
+    assert result["command"] == "open Chrome"
+
+    print("\n✅ Wake-word tests passed")
+
+
+if __name__ == "__main__":
+    test_wake_word()

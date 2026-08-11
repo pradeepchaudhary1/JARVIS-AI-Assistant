@@ -1,46 +1,105 @@
 """
 JARVIS Wake Word Detector
+
+Handles:
+- Wake-word detection
+- Command extraction
+- Wake-only detection
 """
 
 from __future__ import annotations
 
 
-class WakeWord:
+class WakeWordDetector:
 
-    WAKE_WORDS = {
-
-        "jarvis",
+    WAKE_WORDS = (
         "hey jarvis",
-        "hi jarvis",
         "hello jarvis",
+        "hi jarvis",
+        "jarvis",
+    )
 
-    }
+    @classmethod
+    def detect(cls, text: str) -> dict:
 
-    def detected(self, text: str) -> bool:
+        if not isinstance(text, str):
 
-        text = text.lower().strip()
+            return {
+                "status": "error",
+                "wake_word": False,
+                "command": "",
+                "text": "",
+                "message": "Invalid text input.",
+            }
 
-        for wake in self.WAKE_WORDS:
+        original = text.strip()
 
-            if wake in text:
-                return True
+        if not original:
 
-    def remove_wake_word(self, text: str) -> str:
+            return {
+                "status": "empty",
+                "wake_word": False,
+                "command": "",
+                "text": "",
+            }
 
-        text = text.lower().strip()
+        lower = original.lower()
 
-        prefixes = (
-            "hey jarvis",
-            "hello jarvis",
-            "hi jarvis",
-            "jarvis",
-        )
+        for wake in cls.WAKE_WORDS:
 
-        for prefix in prefixes:
+            # Wake word only
+            if lower == wake:
 
-            if text.startswith(prefix):
-                return text[len(prefix):].strip()
+                return {
+                    "status": "wake_only",
+                    "wake_word": True,
+                    "command": "",
+                    "text": original,
+                }
 
-        return text            
+            # Wake word + command
+            prefix = wake + " "
 
-        return False
+            if lower.startswith(prefix):
+
+                command = original[len(wake):].strip()
+
+                return {
+                    "status": "command",
+                    "wake_word": True,
+                    "command": command,
+                    "text": original,
+                }
+
+        # No wake word
+        return {
+            "status": "ignored",
+            "wake_word": False,
+            "command": "",
+            "text": original,
+        }
+
+    @classmethod
+    def remove_wake_word(cls, text: str) -> str:
+
+        if not isinstance(text, str):
+            return ""
+
+        original = text.strip()
+        lower = original.lower()
+
+        for wake in cls.WAKE_WORDS:
+
+            if lower == wake:
+                return ""
+
+            prefix = wake + " "
+
+            if lower.startswith(prefix):
+                return original[len(wake):].strip()
+
+        return original
+
+    @classmethod
+    def parse(cls, text: str) -> dict:
+        return cls.detect(text)
