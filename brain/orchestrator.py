@@ -5,6 +5,10 @@ Production Ready
 
 from brain.router import Router
 from brain.dispatcher import Dispatcher
+
+from brain.intent_detector import IntentDetector
+from brain.intent_dispatcher import IntentDispatcher
+
 from brain.context import ContextManager
 from brain.conversation import ConversationManager
 
@@ -23,6 +27,9 @@ class Brain:
 
         self.router = Router()
         self.dispatcher = Dispatcher()
+
+        self.intent_detector = IntentDetector()
+        self.intent_dispatcher = IntentDispatcher()
 
         self.context = ContextManager()
         self.conversation = ConversationManager()
@@ -55,8 +62,16 @@ class Brain:
 
             long_memory = self.long_memory.all()
 
+
             # ---------------------------------
-            # Route
+            # Intent Detection
+            # ---------------------------------
+
+            intent = self.intent_detector.detect(user_message)
+
+
+            # ---------------------------------
+            # Legacy Route
             # ---------------------------------
 
             route = self.router.route(user_message)
@@ -159,6 +174,8 @@ class Brain:
                 "status": "success",
 
                 "context": context,
+
+                "intent": intent,
 
                 "route": route,
 

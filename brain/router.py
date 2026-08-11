@@ -54,6 +54,22 @@ class Router:
             return "browser"
 
         # -------------------------
+        # Web Search Commands
+        # -------------------------
+
+        if text.startswith((
+            "search ",
+            "google search ",
+            "youtube search ",
+            "search youtube ",
+            "search google ",
+            "search github ",
+            "search amazon ",
+            "search flipkart "
+        )):
+            return "launcher"    
+
+        # -------------------------
         # File / Folder Commands
         # -------------------------
 
