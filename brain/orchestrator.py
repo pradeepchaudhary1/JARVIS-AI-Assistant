@@ -6,6 +6,8 @@ Production Ready
 from brain.router import Router
 from brain.dispatcher import Dispatcher
 
+from brain.response_handler import ResponseHandler
+
 from brain.intent_detector import IntentDetector
 from brain.intent_dispatcher import IntentDispatcher
 
@@ -69,81 +71,89 @@ class Brain:
 
             intent = self.intent_detector.detect(user_message)
 
-
             # ---------------------------------
-            # Legacy Route
-            # ---------------------------------
-
-            route = self.router.route(user_message)
-
-            # ---------------------------------
-            # Execute Tool
+            # Intent → Dispatcher
             # ---------------------------------
 
-            tool_result = self.dispatcher.dispatch(
-                tool=route,
-                command=user_message
-            )
+            route = None
+            tool_result = None
 
+            if intent.get("status") == "success":
+
+                detected_intent = intent.get("intent")
+
+                integrated_intents = {
+                    "open_app",
+                    "close_app",
+                    "minimize_window",
+                    "maximize_window",
+                    "restore_window",
+                    "open_folder",
+                    "web_search",
+                }
+
+                if detected_intent in integrated_intents:
+
+                    tool_result = self.intent_dispatcher.dispatch(
+                        user_message
+                    )
+
+                    route_map = {
+                        "open_app": "launcher",
+                        "close_app": "launcher",
+                        "minimize_window": "window",
+                        "maximize_window": "window",
+                        "restore_window": "window",
+                        "open_folder": "filesystem",
+                        "web_search": "launcher",
+                    }
+
+                    route = route_map.get(
+                        detected_intent,
+                        self.router.route(user_message)
+                    )
+
+                    
+            # ---------------------------------
+            # Legacy Router Fallback
+            # ---------------------------------
+
+            if tool_result is None:
+
+                route = self.router.route(user_message)
+
+                tool_result = self.dispatcher.dispatch(
+                    tool=route,
+                    command=user_message
+                )
+                
             # ---------------------------------
             # Assistant Reply
             # ---------------------------------
-
-            if tool_result.get("status") == "success":
-
-                tool_type = tool_result.get("type", "")
-
-                if tool_type == "installed_app":
-
-                    assistant_reply = f"{user_message} completed."
-
-                elif tool_type == "path_app":
-
-                    assistant_reply = f"{user_message} completed."
-
-                elif tool_type == "application":
-
-                    assistant_reply = f"{user_message} completed."
-
-                elif tool_type == "website":
-
-                    name = tool_result.get("name", "")
-
-                    if tool_result.get("query"):
-
-                        assistant_reply = (
-                            f"{name.title()} search opened for "
-                            f"{tool_result['query']}."
-                        )
-                    else:
-                        assistant_reply = f"{name.title()} opened."
-
-                elif tool_type == "search":
-
-                    assistant_reply = (
-                        f"Searching for {tool_result['query']}."
-                    )
-
-                else:
-
-                    assistant_reply = "Done."
-
-            else:
+            
+            if tool_result is None:
 
                 assistant_reply = self.llm.ask(user_message)
 
-            # ---------------------------------
-            # Save Assistant Reply
-            # ---------------------------------
+                tool_result = {
+                    "status": "success",
+                    "type": "llm",
+                    "message": "Handled by LLM fallback",
+                }
 
-            self.conversation.add_assistant_message(
-                assistant_reply
-            )
+            elif tool_result.get("status") == "success":
 
-            self.short_memory.add(
-                "assistant",
-                assistant_reply
-            )
+                assistant_reply = ResponseHandler.handle(
+                    user_message,
+                    tool_result,
+                )
+
+            else:
+
+                assistant_reply = ResponseHandler.handle(
+                    user_message,
+                    tool_result,
+                )
 
             # ---------------------------------
             # Learn User Information
