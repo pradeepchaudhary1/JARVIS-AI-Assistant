@@ -22,6 +22,9 @@ from memory.long_memory import LongMemory
 from brain.error_handler import ErrorHandler
 from brain.logger import JarvisLogger
 
+from brain.command_safety import CommandSafety
+from brain.confirmation_manager import ConfirmationManager
+
 
 class Brain:
 
@@ -39,7 +42,249 @@ class Brain:
         self.short_memory = ShortMemory()
         self.long_memory = LongMemory()
 
+        self.command_safety = CommandSafety()
+        self.confirmation_manager = ConfirmationManager()
+
         self.llm = LLMRouter()
+
+    def process_confirmation(self, response: str):
+
+        try:
+
+            result = self.confirmation_manager.respond(
+                response
+            )
+
+            status = result.get("status")
+
+            # ---------------------------------
+            # Confirmation cancelled
+            # ---------------------------------
+
+            if status == "cancelled":
+
+                return {
+                    "status": "cancelled",
+                    "command": result.get("command", ""),
+                    "assistant_reply": "Okay sir, command cancelled.",
+                    "confirmation": result,
+                }
+
+            # ---------------------------------
+            # Confirmation unclear
+            # ---------------------------------
+
+            if status == "confirmation_unclear":
+
+                return {
+                    "status": "confirmation_required",
+                    "command": result.get("command", ""),
+                    "assistant_reply": "Please say yes or no.",
+                    "confirmation": result,
+                }
+
+            # ---------------------------------
+            # Nothing pending
+            # ---------------------------------
+
+            if status == "no_pending_confirmation":
+
+                return {
+                    "status": "no_pending_confirmation",
+                    "assistant_reply": (
+                        "There is no command waiting for confirmation."
+                    ),
+                    "confirmation": result,
+                }
+
+            # ---------------------------------
+            # Confirmed
+            # ---------------------------------
+
+            if status == "confirmed":
+
+                command = result.get(
+                    "command",
+                    ""
+                ).strip()
+
+                if not command:
+
+                    return {
+                        "status": "error",
+                        "assistant_reply": (
+                            "The confirmed command was empty."
+                        ),
+                        "confirmation": result,
+                    }
+
+                return self.process_confirmed_command(
+                    command
+                )
+
+            # ---------------------------------
+            # Unknown confirmation status
+            # ---------------------------------
+
+            return {
+                "status": "error",
+                "assistant_reply": (
+                    "Unable to process confirmation."
+                ),
+                "confirmation": result,
+            }
+
+        except Exception as e:
+
+            JarvisLogger.error(str(e))
+
+            return ErrorHandler.handle(e)
+    def process_confirmed_command(self, command: str):
+
+        try:
+
+            command = command.strip()
+
+            if not command:
+                return {
+                    "status": "error",
+                    "message": "Empty confirmed command."
+                }
+
+            # ---------------------------------
+            # Safety verification
+            # ---------------------------------
+            #
+            # Confirmation allows execution,
+            # but the command must still be
+            # explicitly supported.
+            #
+
+            dangerous_commands = {
+                "shutdown",
+                "shutdown computer",
+                "restart computer",
+                "restart",
+                "reboot system",
+                "reboot",
+                "delete file",
+                "remove file",
+                "delete folder",
+                "remove folder",
+                "erase everything",
+                "format drive",
+                "kill all processes",
+                "close all windows",
+            }
+
+            normalized = " ".join(
+                command.lower().split()
+            )
+
+            if normalized in dangerous_commands:
+
+                return {
+                    "status": "blocked",
+                    "command": command,
+                    "assistant_reply": (
+                        "Sir, confirmed dangerous commands "
+                        "are not directly executable yet."
+                    ),
+                    "confirmed": True,
+                    "execution_blocked": True,
+                }
+
+            # ---------------------------------
+            # Normal confirmed command
+            # ---------------------------------
+
+            intent = self.intent_detector.detect(command)
+
+            route = None
+            tool_result = None
+
+            if intent.get("status") == "success":
+
+                detected_intent = intent.get("intent")
+
+                integrated_intents = {
+                    "open_app",
+                    "close_app",
+                    "minimize_window",
+                    "maximize_window",
+                    "restore_window",
+                    "open_folder",
+                    "web_search",
+                }
+
+                if detected_intent in integrated_intents:
+
+                    tool_result = self.intent_dispatcher.dispatch(
+                        command
+                    )
+
+                    route_map = {
+                        "open_app": "launcher",
+                        "close_app": "launcher",
+                        "minimize_window": "window",
+                        "maximize_window": "window",
+                        "restore_window": "window",
+                        "open_folder": "filesystem",
+                        "web_search": "launcher",
+                    }
+
+                    route = route_map.get(
+                        detected_intent,
+                        self.router.route(command)
+                    )
+
+            # ---------------------------------
+            # Legacy Router Fallback
+            # ---------------------------------
+
+            if tool_result is None:
+
+                route = self.router.route(command)
+
+                tool_result = self.dispatcher.dispatch(
+                    tool=route,
+                    command=command
+                )
+
+            # ---------------------------------
+            # Response
+            # ---------------------------------
+
+            assistant_reply = ResponseHandler.handle(
+                command,
+                tool_result
+            )
+
+            return {
+                "status": (
+                    "success"
+                    if tool_result.get("status") == "success"
+                    else "error"
+                ),
+
+                "command": command,
+
+                "intent": intent,
+
+                "route": route,
+
+                "tool_result": tool_result,
+
+                "assistant_reply": assistant_reply,
+
+                "confirmed": True,
+            }
+
+        except Exception as e:
+
+            JarvisLogger.error(str(e))
+
+            return ErrorHandler.handle(e)
 
     def process(self, user_message: str):
 
@@ -70,6 +315,30 @@ class Brain:
             # ---------------------------------
 
             intent = self.intent_detector.detect(user_message)
+
+            # ---------------------------------
+            # Command Safety Check
+            # ---------------------------------
+
+            if self.command_safety.requires_confirmation(user_message):
+
+                confirmation = self.confirmation_manager.request(
+                    user_message
+                )
+
+                return {
+                    "status": "confirmation_required",
+                    "context": context,
+                    "intent": intent,
+                    "route": None,
+                    "tool_result": None,
+                    "assistant_reply": confirmation["message"],
+                    "confirmation": confirmation,
+                    "history": self.conversation.get_recent(),
+                    "conversation": self.conversation.get_recent(),
+                    "short_memory": self.short_memory.get(),
+                    "long_memory": self.long_memory.all(),
+                }
 
             # ---------------------------------
             # Intent → Dispatcher
@@ -112,20 +381,6 @@ class Brain:
                         detected_intent,
                         self.router.route(user_message)
                     )
-
-                    
-            # ---------------------------------
-            # Legacy Router Fallback
-            # ---------------------------------
-
-            if tool_result is None:
-
-                route = self.router.route(user_message)
-
-                tool_result = self.dispatcher.dispatch(
-                    tool=route,
-                    command=user_message
-                )
                 
             # ---------------------------------
             # Assistant Reply

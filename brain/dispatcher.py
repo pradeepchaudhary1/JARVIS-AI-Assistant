@@ -7,7 +7,6 @@ from __future__ import annotations
 import urllib.parse
 
 from tools.browser import BrowserTool
-from tools.filesystem import FileSystemTool
 from tools.universal_launcher import UniversalLauncher
 from tools.command_parser import CommandParser
 from tools.search_registry import SEARCH_REGISTRY

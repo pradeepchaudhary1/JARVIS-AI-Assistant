@@ -1,26 +1,20 @@
-livekit-agents
-livekit-plugins-openai
-livekit-plugins-silero
-livekit-plugins-google
-livekit-plugins-noise-cancellation
-langchain-community
-requests
+# JARVIS — core dependencies (Python 3.12)
+# Purani requirements.txt me LiveKit/Google plugins the (purane ARIA/LiveKit
+# experiment ke leftovers) — voh naye brain/voice architecture me use nahi ho rahe.
+
+groq
 python-dotenv
-duckduckgo-search
-fuzzywuzzy
+requests
+pyttsx3
+SpeechRecognition
+pyaudio
+redis>=5.0.0
 pyautogui
 pynput
-python-Levenshtein
 pywin32
-livekit
 beautifulsoup4
 selenium
 webdriver-manager
 Pillow
-pyttsx3
-ultralytics
-livekit-agents>=0.8.0
-livekit-plugins-google
-google-generativeai
-python-dotenv
-redis>=5.0.0
+fuzzywuzzy
+python-Levenshtein

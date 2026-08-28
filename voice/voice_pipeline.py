@@ -19,7 +19,7 @@ class VoicePipeline:
         self.brain = Brain()
         self.tts = TTS()
 
-    def run(self):
+    def run(self, skip_wake_gate=False):
 
         # ---------------------------------
         # Speech → Text
@@ -43,33 +43,35 @@ class VoicePipeline:
         # Wake Word Gate
         # ---------------------------------
 
-        wake_result = self.wake_word.detect(text)
+        if skip_wake_gate:
+            command = text
+        else: 
+            wake_result = self.wake_word.detect(text)
 
-        # No wake word
-        if wake_result["status"] == "ignored":
+            if wake_result["status"] == "ignored":
 
-            return {
-                "status": "ignored",
-                "text": text,
-                "wake_word": False,
-                "command": "",
-                "message": "Wake word not detected.",
-            }
+                return {
+                    "status": "ignored",
+                    "text": text,
+                    "wake_word": False,
+                    "command": "",
+                    "message": "Wake word not detected.",
+                }
 
-        # Wake word only
-        if wake_result["status"] == "wake_only":
+            # Wake word only
+            if wake_result["status"] == "wake_only":
 
-            return {
-                "status": "wake",
-                "text": text,
-                "wake_word": True,
-                "command": "",
-            }
+                return {
+                    "status": "wake",
+                    "text": text,
+                    "wake_word": True,
+                    "command": "",
+                }
 
-        # Invalid input
-        if wake_result["status"] != "command":
+            # Invalid input
+            if wake_result["status"] != "command":
 
-            return wake_result
+                return wake_result
 
         # ---------------------------------
         # Extract command
@@ -151,9 +153,12 @@ class VoicePipeline:
 
         try:
 
+            awaiting_command = False
+
             while True:
 
-                result = self.run()
+                result = self.run(skip_wake_gate=awaiting_command)
+                awaiting_command = False
 
                 status = result.get("status")
 
@@ -174,6 +179,7 @@ class VoicePipeline:
 
                     print("👂 Wake word detected.")
                     print("🎤 Listening for command...")
+                    awaiting_command = True
                     continue
 
                 # -----------------------------
