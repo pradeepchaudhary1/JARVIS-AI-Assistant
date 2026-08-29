@@ -1,0 +1,18 @@
+{
+  "basic": {
+    "name": "Basic",
+    "allowed_intents": ["open_app", "close_app", "open_folder"]
+  },
+  "professional": {
+    "name": "Professional",
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+  },
+  "pro": {
+    "name": "Pro",
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+  },
+  "lifetime": {
+    "name": "Lifetime",
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+  }
+}

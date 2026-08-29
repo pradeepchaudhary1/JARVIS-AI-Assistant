@@ -25,6 +25,8 @@ from brain.logger import JarvisLogger
 from brain.command_safety import CommandSafety
 from brain.confirmation_manager import ConfirmationManager
 
+from brain.tier_gate import TierGate
+
 
 class Brain:
 
@@ -44,6 +46,8 @@ class Brain:
 
         self.command_safety = CommandSafety()
         self.confirmation_manager = ConfirmationManager()
+
+        self.tier_gate = TierGate()
 
         self.llm = LLMRouter()
 
@@ -362,6 +366,13 @@ class Brain:
                 }
 
                 if detected_intent in integrated_intents:
+
+                    if not self.tier_gate.is_allowed(detected_intent):
+                        return {
+                            "status": "tier_blocked",
+                            "intent": intent,
+                            "assistant_reply": self.tier_gate.upgrade_message(detected_intent),
+                        }
 
                     tool_result = self.intent_dispatcher.dispatch(
                         user_message
