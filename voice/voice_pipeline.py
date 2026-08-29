@@ -18,7 +18,7 @@ class VoicePipeline:
         self.listener = VoiceListener()
         self.brain = Brain()
         self.tts = TTS()
-
+    
     def run(self, skip_wake_gate=False):
 
         # ---------------------------------
@@ -44,10 +44,14 @@ class VoicePipeline:
         # ---------------------------------
 
         if skip_wake_gate:
+
             command = text
-        else: 
+
+        else:
+
             wake_result = self.wake_word.detect(text)
 
+            # Wake word not detected
             if wake_result["status"] == "ignored":
 
                 return {
@@ -68,26 +72,26 @@ class VoicePipeline:
                     "command": "",
                 }
 
-            # Invalid input
+            # Invalid wake-word result
             if wake_result["status"] != "command":
 
                 return wake_result
 
-        # ---------------------------------
-        # Extract command
-        # ---------------------------------
+            # Extract command only when wake_result exists
+            command = wake_result.get(
+                "command",
+                "",
+            ).strip()
 
-        command = wake_result.get(
-            "command",
-            "",
-        ).strip()
+        # ---------------------------------
+        # Empty command
+        # ---------------------------------
 
         if not command:
 
             return {
-                "status": "wake",
+                "status": "empty",
                 "text": text,
-                "wake_word": True,
                 "command": "",
             }
 
@@ -136,6 +140,7 @@ class VoicePipeline:
             brain_result["speech_error"] = speech_result
 
         return brain_result
+
 
     # =================================
     # Continuous Voice Loop

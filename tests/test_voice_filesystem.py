@@ -21,6 +21,7 @@ FileLauncher
 
 from __future__ import annotations
 
+from voice.voice_pipeline import VoicePipeline
 from voice.voice_controller import VoiceController
 from voice.wake_word import WakeWord
 

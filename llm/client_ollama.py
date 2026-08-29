@@ -36,15 +36,12 @@ class OllamaClient:
         )
 
         response = requests.post(
-
             self.url,
-
             json={
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
             },
-
             timeout=120,
         )
 
@@ -56,4 +53,4 @@ class OllamaClient:
         """
         Standard interface used by LLMRouter.
         """
-        return self.chat(message)    
+        return self.chat(message)
