@@ -14,6 +14,7 @@ def main():
     print("=" * 60)
 
     brain = Brain()
+    brain.tier_gate.current_tier = "professional"
 
     # --------------------------------------------------
     # TEST 1: Dangerous command must be blocked
