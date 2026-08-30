@@ -26,6 +26,8 @@ from brain.command_safety import CommandSafety
 from brain.confirmation_manager import ConfirmationManager
 
 from brain.tier_gate import TierGate
+from memory.redis_store import get_memory_backend
+from license_manager import read_license_data
 
 
 class Brain:
@@ -50,6 +52,28 @@ class Brain:
         self.tier_gate = TierGate()
 
         self.llm = LLMRouter()
+
+    def _check_daily_limit(self):
+        tier_config = self.tier_gate.tiers.get(self.tier_gate.current_tier, {})
+        max_daily_commands = tier_config.get("max_daily_commands")
+
+        if max_daily_commands is None:
+            return None
+
+        email, _ = read_license_data()
+        if not email:
+            email = "default@jarvis.local"
+
+        backend = get_memory_backend()
+        current_count = backend.increment_daily_usage(email)
+
+        if current_count > max_daily_commands:
+            return {
+                "status": "limit_reached",
+                "assistant_reply": "Sir, aaj ki command limit khatam ho gayi.",
+            }
+
+        return None
 
     def process_confirmation(self, response: str):
 
@@ -326,6 +350,13 @@ class Brain:
 
             if self.command_safety.requires_confirmation(user_message):
 
+                tier_config = self.tier_gate.tiers.get(self.tier_gate.current_tier, {})
+                if not tier_config.get("dangerous_command_confirmation", False):
+                    return {
+                        "status": "tier_blocked",
+                        "assistant_reply": "Sir, this command isn't available on your current plan.",
+                    }
+
                 confirmation = self.confirmation_manager.request(
                     user_message
                 )
@@ -374,6 +405,10 @@ class Brain:
                             "assistant_reply": self.tier_gate.upgrade_message(detected_intent),
                         }
 
+                    daily_limit_result = self._check_daily_limit()
+                    if daily_limit_result is not None:
+                        return daily_limit_result
+
                     tool_result = self.intent_dispatcher.dispatch(
                         user_message
                     )
@@ -398,6 +433,10 @@ class Brain:
             # ---------------------------------
             
             if tool_result is None:
+
+                daily_limit_result = self._check_daily_limit()
+                if daily_limit_result is not None:
+                    return daily_limit_result
 
                 assistant_reply = self.llm.ask(user_message)
 

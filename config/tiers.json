@@ -1,18 +1,26 @@
 {
   "basic": {
     "name": "Basic",
-    "allowed_intents": ["open_app", "close_app", "open_folder"]
+    "allowed_intents": ["open_app", "close_app", "open_folder"],
+    "dangerous_command_confirmation": false,
+    "max_daily_commands": 50
   },
   "professional": {
     "name": "Professional",
-    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"],
+    "dangerous_command_confirmation": true,
+    "max_daily_commands": 500
   },
   "pro": {
     "name": "Pro",
-    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"],
+    "dangerous_command_confirmation": true,
+    "max_daily_commands": null
   },
   "lifetime": {
     "name": "Lifetime",
-    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"]
+    "allowed_intents": ["open_app", "close_app", "open_folder", "minimize_window", "maximize_window", "restore_window", "web_search"],
+    "dangerous_command_confirmation": true,
+    "max_daily_commands": null
   }
 }

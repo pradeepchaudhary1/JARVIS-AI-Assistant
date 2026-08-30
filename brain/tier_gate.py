@@ -20,9 +20,15 @@ class TierGate:
         self.current_tier = self._load_active_tier()
 
     def _load_active_tier(self) -> str:
-        # TODO (Phase 2.6b): read real tier from the license system once
-        # license_manager.py schema is reviewed. Hardcoded for now so
-        # feature-gating logic can be built and tested independently.
+        try:
+            from license_manager import read_license_data
+
+            _, tier = read_license_data()
+            if tier in self.tiers:
+                return tier
+        except Exception:
+            pass
+
         return "basic"
 
     def is_allowed(self, intent: str) -> bool:

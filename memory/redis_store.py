@@ -32,6 +32,7 @@ KEY_FACTS = "jarvis:facts"
 KEY_TASKS = "jarvis:tasks"
 KEY_TASK_SEQ = "jarvis:tasks:seq"
 STREAM_CONVERSATIONS = "jarvis:conversations"
+USAGE_DAILY_PREFIX = "jarvis:usage:daily"
 
 CONVERSATION_MAXLEN = 50
 CONVERSATION_TTL_SECONDS = 30 * 24 * 60 * 60  # 30 days
@@ -114,6 +115,17 @@ class JsonMemoryBackend(MemoryBackend):
 
     def get_facts(self) -> list[dict[str, str]]:
         return self._read_memory().get("facts", [])
+
+    def increment_daily_usage(self, email: str) -> int:
+        today = datetime.now().strftime("%Y-%m-%d")
+        email_key = email.strip().lower()
+        mem = self._read_memory()
+        usage = mem.setdefault("daily_usage", {})
+        daily_key = f"{today}:{email_key}"
+        current = int(usage.get(daily_key, 0)) + 1
+        usage[daily_key] = current
+        self._write_memory(mem)
+        return current
 
     def _read_tasks(self) -> list[dict[str, Any]]:
         try:
@@ -239,6 +251,13 @@ class RedisMemoryBackend(MemoryBackend):
         entry["completed"] = self._now()
         self._client.hset(KEY_TASKS, key, json.dumps(entry, ensure_ascii=False))
         return entry
+
+    def increment_daily_usage(self, email: str) -> int:
+        today = datetime.now().strftime("%Y-%m-%d")
+        key = f"{USAGE_DAILY_PREFIX}:{today}:{email.strip().lower()}"
+        value = self._client.incr(key)
+        self._client.expire(key, 90000)
+        return value
 
 
 @lru_cache(maxsize=1)
