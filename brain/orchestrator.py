@@ -26,6 +26,7 @@ from brain.command_safety import CommandSafety
 from brain.confirmation_manager import ConfirmationManager
 
 from brain.tier_gate import TierGate
+from brain.skill_registry import SkillRegistry
 from memory.redis_store import get_memory_backend
 from license_manager import read_license_data
 
@@ -50,6 +51,7 @@ class Brain:
         self.confirmation_manager = ConfirmationManager()
 
         self.tier_gate = TierGate()
+        self.skill_registry = SkillRegistry()
 
         self.llm = LLMRouter()
 
@@ -438,13 +440,37 @@ class Brain:
                 if daily_limit_result is not None:
                     return daily_limit_result
 
-                assistant_reply = self.llm.ask(user_message)
+                matched_skill = self.skill_registry.match(user_message)
 
-                tool_result = {
-                    "status": "success",
-                    "type": "llm",
-                    "message": "Handled by LLM fallback",
-                }
+                if matched_skill is not None:
+                    if not self.skill_registry.is_tier_sufficient(
+                        matched_skill,
+                        self.tier_gate.current_tier,
+                        self.tier_gate.tiers,
+                    ):
+                        return {
+                            "status": "tier_blocked",
+                            "assistant_reply": (
+                                f"Sir, this feature requires the "
+                                f"{matched_skill.MIN_TIER.title()} plan or higher."
+                            ),
+                        }
+
+                    tool_result = matched_skill.execute(
+                        user_message,
+                        {"raw_command": user_message},
+                    )
+                    assistant_reply = tool_result.get(
+                        "message", "Done."
+                    )
+
+                else:
+                    assistant_reply = self.llm.ask(user_message)
+                    tool_result = {
+                        "status": "success",
+                        "type": "llm",
+                        "message": "Handled by LLM fallback",
+                    }
 
             elif tool_result.get("status") == "success":
 
