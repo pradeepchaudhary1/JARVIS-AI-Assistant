@@ -4,11 +4,10 @@ Groq Client
 
 from __future__ import annotations
 
-import os
-
 from dotenv import load_dotenv
 from groq import Groq
 
+from license_manager import read_groq_key
 from llm.prompts import PromptManager
 
 # Load .env once
@@ -22,10 +21,10 @@ class GroqClient:
 
     def __init__(self):
 
-        api_key = os.getenv("GROQ_API_KEY")
+        api_key = read_groq_key()
 
         if not api_key:
-            raise RuntimeError("GROQ_API_KEY not found in .env")
+            raise RuntimeError("No Groq API key available from .jarvis_license or .env")
 
         self.client = Groq(api_key=api_key)
 

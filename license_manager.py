@@ -57,13 +57,8 @@ def _is_valid_format(key: str) -> bool:
 
 def read_license_data() -> tuple[str, str]:
     """Return (email, tier) from .jarvis_license, with safe defaults."""
-    if not os.path.exists(LICENSE_FILE):
-        return "", "basic"
-
-    try:
-        with open(LICENSE_FILE, "r", encoding="utf-8") as f:
-            rows = [line.strip() for line in f if line.strip()]
-    except OSError:
+    rows = read_license_rows()
+    if not rows:
         return "", "basic"
 
     if len(rows) >= 2:
@@ -76,6 +71,39 @@ def read_license_data() -> tuple[str, str]:
         return rows[0].lower(), "basic"
 
     return "", "basic"
+
+
+def read_license_rows() -> list[str]:
+    """Return raw rows from the active license file, if present."""
+    if not os.path.exists(LICENSE_FILE):
+        return []
+
+    try:
+        with open(LICENSE_FILE, "r", encoding="utf-8") as f:
+            return [line.strip() for line in f if line.strip()]
+    except OSError:
+        return []
+
+
+def read_groq_key() -> str:
+    """Return the active Groq key.
+
+    Customer license takes priority when a valid Groq key is present in
+    .jarvis_license. Environment variables remain the dev fallback for local
+    development. Empty or invalid keys fall through to the environment and then
+    return an empty string if nothing is configured.
+    """
+    rows = read_license_rows()
+    if len(rows) >= 3:
+        customer_key = rows[2].strip()
+        if customer_key:
+            return customer_key
+
+    env_key = os.getenv("GROQ_API_KEY", "").strip()
+    if env_key:
+        return env_key
+
+    return ""
 
 
 def verify_license(email: str, key: str, tier: str | None = None) -> bool:
