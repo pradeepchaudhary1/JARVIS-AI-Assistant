@@ -111,6 +111,30 @@ def test_no_match_returns_none(tmp_path):
     assert registry.match("open the app") is None
 
 
+def test_real_example_ping_skill_matches_realistic_variants():
+    from brain.skill_registry import SkillRegistry
+
+    registry = SkillRegistry()
+
+    variants = [
+        "jarvis are you there",
+        "JARVIS ARE YOU THERE?",
+        "jarvis, are you there!",
+        "  jarvis   are   you   there  ",
+        "ping jarvis",
+        "system check sir",
+        "can you do a quick system check",
+        "hey jarvis are u there",
+    ]
+
+    for variant in variants:
+        skill = registry.match(variant)
+        assert skill is not None, f"Expected matching skill for: {variant!r}"
+        assert skill.SKILL_NAME == "example_ping"
+
+    assert registry.match("open chrome") is None
+
+
 def test_real_example_ping_skill_integration():
     brain = orchestrator.Brain()
     brain.tier_gate.current_tier = "basic"

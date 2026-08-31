@@ -1,7 +1,13 @@
 import importlib.util
 import logging
+import re
 from pathlib import Path
 from typing import Optional
+
+try:
+    from fuzzywuzzy import fuzz
+except Exception:  # pragma: no cover - dependency may be absent in some envs
+    fuzz = None
 
 
 class SkillRegistry:
@@ -78,15 +84,56 @@ class SkillRegistry:
 
         return True
 
+    @staticmethod
+    def _normalize_text(value: str) -> str:
+        """Normalize text for safe trigger comparison."""
+        if not value:
+            return ""
+
+        text = value.lower()
+        text = re.sub(r"[^a-z0-9\s]", " ", text)
+        text = re.sub(r"\s+", " ", text).strip()
+        return text
+
+    def _score_trigger(self, command: str, trigger: str) -> int:
+        """Return a conservative similarity score for trigger matching."""
+        normalized_command = self._normalize_text(command)
+        normalized_trigger = self._normalize_text(trigger)
+
+        if not normalized_command or not normalized_trigger:
+            return 0
+
+        if normalized_trigger in normalized_command or normalized_command in normalized_trigger:
+            return 100
+
+        if fuzz is None:
+            return 0
+
+        return max(
+            fuzz.ratio(normalized_command, normalized_trigger),
+            fuzz.partial_ratio(normalized_command, normalized_trigger),
+        )
+
     def match(self, command: str):
-        """Case-insensitive substring match against TRIGGER_PHRASES."""
+        """Match the best skill trigger using exact + conservative fuzzy matching."""
         if not command:
             return None
 
-        lowered = command.lower()
+        normalized_command = self._normalize_text(command)
+        if not normalized_command:
+            return None
+
+        best_skill = None
+        best_score = 0
+
         for trigger_phrase, skill_module in self._trigger_lookup.items():
-            if trigger_phrase in lowered:
-                return skill_module
+            score = self._score_trigger(normalized_command, trigger_phrase)
+            if score > best_score:
+                best_score = score
+                best_skill = skill_module
+
+        if best_skill is not None and best_score >= 82:
+            return best_skill
 
         return None
 
