@@ -23,7 +23,9 @@ class TTS:
     }
 
     def __init__(self, voice_id: str | None = None):
-        self.voice_id = self._normalize_voice_id(voice_id or self.DEFAULT_VOICE)
+        self.voice_id = self.DEFAULT_VOICE
+        if voice_id is not None:
+            self.set_voice(voice_id)
 
     def _normalize_voice_id(self, voice_id: str) -> str:
         if not voice_id:
@@ -35,6 +37,11 @@ class TTS:
                 f"Unsupported voice_id '{voice_id}'. Supported: {sorted(self.SUPPORTED_VOICES)}"
             )
 
+        return normalized
+
+    def set_voice(self, voice_id: str) -> str:
+        normalized = self._normalize_voice_id(voice_id)
+        self.voice_id = normalized
         return normalized
 
     async def _generate_audio(self, text: str, output_file: str) -> None:
