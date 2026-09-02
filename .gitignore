@@ -1,1 +1,12 @@
 ﻿memory/scheduler.db
+.env
+.jarvis_license
+client_secret.json
+youtube_token.pickle
+jarvis_memory.json
+.venv/
+crewAi-Automation/.venv/
+**pycache**/
+**/**pycache**/
+*.pyc
+logs/
