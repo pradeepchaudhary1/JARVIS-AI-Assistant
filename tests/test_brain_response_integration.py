@@ -1,3 +1,4 @@
+import license_manager
 from brain.orchestrator import Brain
 
 
@@ -5,8 +6,13 @@ def run(command):
     print("\n" + "=" * 50)
     print("COMMAND :", command)
 
-    brain = Brain()
-    result = brain.process(command)
+    original = license_manager.read_license_data
+    license_manager.read_license_data = lambda: ("user@example.com", "basic")
+    try:
+        brain = Brain()
+        result = brain.process(command)
+    finally:
+        license_manager.read_license_data = original
 
     print("ROUTE   :", result.get("route"))
     print("TOOL    :", result.get("tool_result"))

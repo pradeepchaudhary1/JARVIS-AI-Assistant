@@ -29,7 +29,18 @@ from license_manager import activate
 if not activate():
     sys.exit(1)
 
+from memory.scheduler_runner import SchedulerRunner
 from voice.voice_pipeline import VoicePipeline
+
+_scheduler_runner = None
+
+
+def _ensure_scheduler_started():
+    global _scheduler_runner
+    if _scheduler_runner is None:
+        _scheduler_runner = SchedulerRunner(on_due=lambda reminder: None)
+        _scheduler_runner.start()
+    return _scheduler_runner
 
 
 def main():
@@ -47,11 +58,15 @@ def main():
         print("[JARVIS]   GROQ_API_KEY=your_key_here\n")
 
     pipeline = VoicePipeline()
+    scheduler_runner = _ensure_scheduler_started()
 
     try:
         pipeline.run_loop()
     except KeyboardInterrupt:
         print("\n[JARVIS] Ok Boss, band kar raha hoon. Alvida!")
+    finally:
+        if scheduler_runner is not None:
+            scheduler_runner.stop()
 
 
 if __name__ == "__main__":
