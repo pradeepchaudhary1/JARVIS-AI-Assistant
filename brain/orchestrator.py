@@ -29,7 +29,7 @@ from brain.tier_gate import TierGate
 from brain.skill_registry import SkillRegistry
 from memory.redis_store import get_memory_backend
 from license_manager import read_license_data
-
+from memory.session_context import SessionContext
 
 class Brain:
 
@@ -53,6 +53,8 @@ class Brain:
         self.tier_gate = TierGate()
         self.skill_registry = SkillRegistry()
 
+        self.session_context = SessionContext()
+
         self.llm = LLMRouter()
 
     def _check_daily_limit(self):
@@ -67,7 +69,11 @@ class Brain:
             email = "default@jarvis.local"
 
         backend = get_memory_backend()
-        current_count = backend.increment_daily_usage(email)
+        increment_daily_usage = getattr(backend, "increment_daily_usage", None)
+        if increment_daily_usage is None:
+            return None
+
+        current_count = increment_daily_usage(email)
 
         if current_count > max_daily_commands:
             return {
@@ -458,8 +464,12 @@ class Brain:
 
                     tool_result = matched_skill.execute(
                         user_message,
-                        {"raw_command": user_message},
+                        {
+                            "raw_command": user_message,
+                            "session_context": self.session_context
+                        }
                     )
+
                     assistant_reply = tool_result.get(
                         "message", "Done."
                     )

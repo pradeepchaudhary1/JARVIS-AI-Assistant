@@ -18,3 +18,7 @@ webdriver-manager
 Pillow
 fuzzywuzzy
 python-Levenshtein
+
+python-docx
+docx2pdf
+pypdf
