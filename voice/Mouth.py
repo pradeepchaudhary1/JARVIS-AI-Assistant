@@ -4,12 +4,6 @@ import os
 import edge_tts
 import pygame
 
-VOICE = "en-US-AndrewNeural",
-VOICE = "en-US-JennyNeural",
-VOICE = "en-US-AriaNeural",
-VOICE = "hi-IN-MadhurNeural",
-VOICE = "hi-IN-SwaraNeural",
-VOICE = "en-IN-NeerjaNeural",
 VOICE = "en-IN-PrabhatNeural"
 
 BUFFER_SIZE = 4096

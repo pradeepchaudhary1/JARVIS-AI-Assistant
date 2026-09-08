@@ -22,6 +22,7 @@ class SpeechEngine:
         self.recognizer = AudioOptimizer.optimize(
             self.manager.recognizer
         )
+        self._calibrated = False
 
     def recognize(self):
 
@@ -35,12 +36,15 @@ class SpeechEngine:
 
             with microphone as source:
 
-                print("🎤 Calibrating...")
+                if not self._calibrated:
 
-                self.recognizer.adjust_for_ambient_noise(
-                    source,
-                    duration=1
-                )
+                    print("🎤 Calibrating...")
+
+                    self.recognizer.adjust_for_ambient_noise(
+                        source,
+                        duration=1
+                    )
+                    self._calibrated = True
 
                 print("🎤 Listening...")
 
@@ -56,10 +60,19 @@ class SpeechEngine:
 
             print("🧠 Recognizing...")
 
-            text = self.recognizer.recognize_google(
-                audio,
-                language="en-IN"
-            )
+            try:
+
+                text = self.recognizer.recognize_google(
+                    audio,
+                    language="en-IN"
+                )
+
+            except sr.UnknownValueError:
+
+                text = self.recognizer.recognize_google(
+                    audio,
+                    language="en-IN"
+                )
 
             text = text.strip()
 

@@ -7,7 +7,6 @@ from __future__ import annotations
 
 import speech_recognition as sr
 
-
 class MicrophoneManager:
     """
     Handles microphone selection and initialization.

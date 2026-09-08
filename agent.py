@@ -17,7 +17,7 @@ usko wire karega. Ye file hamesha chhoti rahegi.
 
 import os
 import sys
-
+import edge_tts
 from dotenv import load_dotenv
 
 # Project root ko dynamically detect karo — koi hardcoded D:/ path nahi
@@ -45,8 +45,8 @@ def _ensure_scheduler_started():
 
 def main():
     print("=" * 45)
-    print("  JARVIS AI Assistant — Online")
-    print("  Pradeep Content Empire")
+    print("  JARVIS IS — Online")
+    print("  Pradeep LumixBranding")
     print("=" * 45)
     print("  Say 'Hey Jarvis' + command")
     print("  Say 'exit jarvis' to quit")

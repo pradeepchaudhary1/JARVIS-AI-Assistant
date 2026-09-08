@@ -7,6 +7,7 @@ Wake Word → Speech Recognition → Brain → Tool → Response → TTS
 from __future__ import annotations
 
 import time
+from typing import Any, cast
 
 from voice.voice_controller import VoiceController
 from voice.wake_word import WakeWordDetector
@@ -84,7 +85,7 @@ class VoiceLoop:
                 if not text:
                     continue
 
-                if self.wake.detected(text):
+                if self.wake.detect(text):
 
                     print()
                     print("Wake Word Detected")
@@ -113,6 +114,7 @@ class VoiceLoop:
             # ==================================================
 
             result = self.controller.listen_once()
+            result = cast(dict[str, Any], result)
 
             status = result.get("status")
 
@@ -147,19 +149,24 @@ class VoiceLoop:
 
             intent = result.get("intent", {})
 
-            command = intent.get("command", "").strip()
+            if isinstance(intent, dict):
+                command = str(intent.get("command", "") or "").strip()
+            else:
+                command = str(intent or "").strip()
 
             # Fallback to conversation history
             if not command:
 
                 history = result.get("history", [])
 
-                if len(history) >= 2:
+                if isinstance(history, list) and len(history) >= 2:
 
-                    command = history[-2].get(
-                        "content",
-                        ""
-                    ).strip()
+                    previous_entry = history[-2]
+
+                    if isinstance(previous_entry, dict):
+                        command = str(previous_entry.get("content", "") or "").strip()
+                    elif isinstance(previous_entry, str):
+                        command = previous_entry.strip()
 
             if not command:
 

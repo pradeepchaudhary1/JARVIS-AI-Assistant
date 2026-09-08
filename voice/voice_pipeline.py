@@ -4,6 +4,9 @@ JARVIS Voice Pipeline
 Voice → Wake Word → Brain → Tool → Response → TTS
 """
 
+import re
+import time
+
 from voice.wake_word import WakeWordDetector
 from voice.listener import VoiceListener
 from voice.tts import TTS
@@ -12,6 +15,76 @@ from brain.orchestrator import Brain
 
 class VoicePipeline:
 
+    CONVERSATION_WINDOW_SECONDS = 15
+
+    @staticmethod
+    def _normalize_wake_text(text):
+        normalized = " ".join((text or "").lower().split())
+        separator = r"[\s,.;:!?()\[\]{}\"'\-]+"
+        normalized = re.sub(
+            rf"^(hey|hello|hi){separator}jarvis(?:{separator}|$)",
+            r"\1 jarvis ",
+            normalized,
+            count=1,
+        )
+        return " ".join(normalized.split())
+
+    @staticmethod
+    def _extract_wake_command(text):
+        command = (text or "").strip()
+        separator = r"[\s,.;:!?()\[\]{}\"'\-]+"
+        command = re.sub(
+            rf"^(?:hey|hello|hi){separator}jarvis(?:{separator}|$)",
+            "",
+            command,
+            count=1,
+            flags=re.IGNORECASE,
+        )
+        return re.sub(
+            rf"^jarvis(?:{separator}|$)",
+            "",
+            command,
+            count=1,
+            flags=re.IGNORECASE,
+        ).strip()
+
+    EXIT_COMMANDS = {
+        "exit",
+        "exit jarvis",
+        "stop",
+        "stop jarvis",
+        "quit",
+        "quit jarvis",
+        "goodbye jarvis",
+        "shutdown jarvis",
+    }
+
+    @classmethod
+    def _is_exit_command(cls, text):
+        normalized = " ".join((text or "").lower().split())
+        normalized = re.sub(r"[,.!?;:]+", " ", normalized)
+        normalized = " ".join(normalized.split())
+
+        if normalized in cls.EXIT_COMMANDS:
+            return True
+
+        exit_patterns = (
+            r"^exit jarvis(?: please)?$",
+            r"^please exit jarvis$",
+            r"^jarvis exit$",
+            r"^stop jarvis(?: please)?$",
+            r"^please stop jarvis$",
+            r"^jarvis stop$",
+            r"^quit jarvis(?: please)?$",
+            r"^please quit jarvis$",
+            r"^jarvis quit$",
+        )
+
+        return any(
+            re.fullmatch(pattern, normalized)
+            for pattern in exit_patterns
+        )
+    
     def __init__(self):
 
         self.wake_word = WakeWordDetector()
@@ -39,6 +112,13 @@ class VoicePipeline:
                 "text": "",
             }
 
+        if self._is_exit_command(text):
+            return {
+                "status": "stopped",
+                "text": text,
+                "command": text,
+            }
+
         # ---------------------------------
         # Wake Word Gate
         # ---------------------------------
@@ -49,7 +129,9 @@ class VoicePipeline:
 
         else:
 
-            wake_result = self.wake_word.detect(text)
+            wake_result = self.wake_word.detect(
+                self._normalize_wake_text(text)
+            )
 
             # Wake word not detected
             if wake_result["status"] == "ignored":
@@ -78,10 +160,7 @@ class VoicePipeline:
                 return wake_result
 
             # Extract command only when wake_result exists
-            command = wake_result.get(
-                "command",
-                "",
-            ).strip()
+            command = self._extract_wake_command(text)
 
         # ---------------------------------
         # Empty command
@@ -93,6 +172,14 @@ class VoicePipeline:
                 "status": "empty",
                 "text": text,
                 "command": "",
+            }
+
+        normalized_command = " ".join(command.lower().split())
+        if self._is_exit_command(normalized_command):
+            return {
+                "status": "stopped",
+                "text": text,
+                "command": normalized_command,
             }
 
         # ---------------------------------
@@ -115,7 +202,9 @@ class VoicePipeline:
 
         if not reply:
 
-            brain_result["speech_result"] = {
+
+            brain_result["spe" \
+            "ech_result"] = {
                 "status": "empty",
                 "text": "",
             }
@@ -159,10 +248,22 @@ class VoicePipeline:
         try:
 
             awaiting_command = False
+            conversation_deadline = None
 
             while True:
 
-                result = self.run(skip_wake_gate=awaiting_command)
+                if (
+                    conversation_deadline is not None
+                    and time.monotonic() >= conversation_deadline
+                ):
+                    conversation_deadline = None
+
+                result = self.run(
+                    skip_wake_gate=(
+                        awaiting_command
+                        or conversation_deadline is not None
+                    )
+                )
                 awaiting_command = False
 
                 status = result.get("status")
@@ -215,6 +316,20 @@ class VoicePipeline:
                     return result
 
                 # -----------------------------
+                # Local exit command
+                # -----------------------------
+
+                if status == "stopped":
+
+                    print("\n🛑 JARVIS voice mode stopping...")
+
+                    self.tts.speak(
+                        "Goodbye sir."
+                    )
+
+                    return result
+
+                # -----------------------------
                 # Empty
                 # -----------------------------
 
@@ -239,36 +354,10 @@ class VoicePipeline:
 
                 if status == "success":
 
-                    intent = result.get("intent", {})
-
-                    command = intent.get(
-                        "command",
-                        "",
-                    ).strip().lower()
-
-                    exit_commands = (
-                        "exit",
-                        "exit jarvis",
-                        "stop",
-                        "stop jarvis",
-                        "quit",
-                        "quit jarvis",
-                        "goodbye jarvis",
-                        "shutdown jarvis",
+                    conversation_deadline = (
+                        time.monotonic()
+                        + self.CONVERSATION_WINDOW_SECONDS
                     )
-
-                    if command in exit_commands:
-
-                        print("\n🛑 JARVIS voice mode stopping...")
-
-                        self.tts.speak(
-                            "Goodbye sir."
-                        )
-
-                        return {
-                            "status": "stopped",
-                            "command": command,
-                        }
 
                     print("\n✅ Command completed.")
                     print("\n🎤 Listening for next command...")
