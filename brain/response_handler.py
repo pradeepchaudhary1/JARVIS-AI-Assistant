@@ -5,13 +5,14 @@ Phase 2.3.5
 Converts tool execution results into natural assistant replies.
 """
 
+
 class ResponseHandler:
 
     @staticmethod
     def handle(user_message: str, tool_result: dict) -> str:
 
         if not isinstance(tool_result, dict):
-            return "Done."
+            return "Done sir."
 
         status = tool_result.get("status")
 
@@ -29,7 +30,7 @@ class ResponseHandler:
                 "path_app",
                 "application",
             ):
-                return f"{user_message} completed."
+                return "Done Boss."
 
             # Website / search
             if tool_type == "website":
@@ -38,15 +39,14 @@ class ResponseHandler:
                 query = tool_result.get("query")
 
                 if query:
-                    return (
-                        f"{name.title()} search opened for "
-                        f"{query}."
-                    )
+                    if name:
+                        return f"{name.title()} is open, sir."
+                    return "Search opened."
 
                 if name:
-                    return f"{name.title()} opened."
+                    return f"{name.title()} opened, sir."
 
-                return "Website opened."
+                return "Website opened, Boss."
 
             # Search tool
             if tool_type == "search":
@@ -54,9 +54,9 @@ class ResponseHandler:
                 query = tool_result.get("query", "")
 
                 if query:
-                    return f"Searching for {query}."
+                    return f"Searching for that, sir."
 
-                return "Searching."
+                return "Searching, Boss."
 
             # Close application
             if tool_type == "close":
@@ -74,7 +74,7 @@ class ResponseHandler:
                 target = tool_result.get("target", "")
 
                 if target:
-                    return f"{target.title()} opened."
+                    return f"{target.title()} opened, sir."
 
                 return "File or folder opened."
 
@@ -84,29 +84,27 @@ class ResponseHandler:
                 "maximize",
                 "restore",
             ):
-                return "Done."
+                return "Done sir."
 
             # Generic success
-            return "Done."
+            return "Done sir."
 
         # ---------------------------------
         # Failure
         # ---------------------------------
 
         if status == "error":
-
-            message = tool_result.get("message")
-
-            if message:
-                return f"Sir, I couldn't complete that: {message}"
-
-            return "Sir, I couldn't complete that command."
+            return "Sorry Boss, I couldn't complete that."
 
         # ---------------------------------
-        # Timeout / unknown state
+        # Timeout
         # ---------------------------------
 
         if status == "timeout":
-            return "Sir, the operation timed out. Please try again."
+            return "Sorry Boss, that took too long. Please try again."
 
-        return "Done."
+        # ---------------------------------
+        # Unknown state
+        # ---------------------------------
+
+        return "Done Sir."

@@ -11,7 +11,6 @@ from datetime import datetime
 
 class ErrorHandler:
 
-
     @staticmethod
     def handle(error: Exception):
 
@@ -28,11 +27,12 @@ class ErrorHandler:
             "message": str(error),
 
             "trace":
-                traceback.format_exc()
+                traceback.format_exc(),
+
+            "assistant_reply":
+                "Sorry Boss, something went wrong. Please try again."
 
         }
-
-
 
     @staticmethod
     def safe_execute(function, *args, **kwargs):
@@ -47,7 +47,6 @@ class ErrorHandler:
                     function(*args, **kwargs)
 
             }
-
 
         except Exception as e:
 
